@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Bowling Score Generator</title>
+    <style>
+      #content {
+        width: 70%;
+        margin: auto;
+        color: #333;
+        font-size: 1.25rem;
+        line-height: 1.4;
+      }
+
+      button,
+      input {
+        font-size: 1rem;
+      }
+
+      #chooseForMeButton {
+        margin-left: 150px;
+      }
+
+      .inputLabel {
+        width: 150px;
+        float: left;
+      }
+
+      .inputField {
+        float: left;
+      }
+
+      .inputPanel:after {
+        content: "";
+        display: block;
+        clear: left;
+      }
+
+      #randomGameButton {
+        margin-top: 20px;
+      }
+
+      #resultsContainer {
+        font-family: monospace;
+        margin-top: 20px;
+      }
+
+      .result {
+        background-color: #eee;
+        padding: 10px;
+        margin-bottom: 10px;
+      }
+
+      .result > div:first-child {
+        margin-bottom: 10px;
+      }
+
+      .resultLabel {
+        width: 15%;
+        float: left;
+      }
+
+      table,
+      td,
+      th {
+        border: solid thin black;
+        border-collapse: collapse;
+      }
+
+      td,
+      th {
+        padding: 10px;
+        text-align: center;
+        width: 40px;
+      }
+
+      th {
+        background-color: #bbb;
+      }
+
+      #errorMessage {
+        color: red;
+      }
+    </style>
+    <script src="BowlingUtils.js"></script>
+    <script>
+      window.onload = function () {
+        document
+          .querySelector("#chooseForMeButton")
+          .addEventListener("click", generateCounts);
+        document
+          .querySelector("#generateGameButton")
+          .addEventListener("click", generateGame);
+      };
+
+      let generateRandomBetween = function (min, max) {
+        return min + Math.floor(Math.random() * (max - min + 1));
+      };
+
+      function generateCounts() {
+        let strikes = generateRandomBetween(0, 10);
+        let spares = generateRandomBetween(0, 10 - strikes);
+        let openFrames = 10 - (strikes + spares);
+        document.querySelector("input[name='strikes']").value = strikes;
+        document.querySelector("input[name='spares']").value = spares;
+        document.querySelector("input[name='openFrames']").value = openFrames;
+      }
+
+      function generateGame() {
+        let errorArea = document.querySelector("#errorMessage");
+        errorArea.innerHTML = "";
+        let strikeFrames = +document.querySelector("input[name='strikes']")
+          .value;
+        let spareFrames = +document.querySelector("input[name='spares']").value;
+        let openFrames = +document.querySelector("input[name='openFrames']")
+          .value;
+        if (strikeFrames + spareFrames + openFrames !== 10) {
+          errorArea.innerHTML = "Error: must be 10 frames!";
+          return;
+        }
+        let frames = BowlingUtils.generateFrames(
+          strikeFrames,
+          spareFrames,
+          openFrames
+        );
+        let balls = BowlingUtils.getBallsFromFrames(frames);
+        let framesTable = BowlingUtils.formatFramesAsTable(frames);
+        let scoresArray = BowlingUtils.getScoresFromFrames(frames);
+        let scoresTable = BowlingUtils.formatScores(scoresArray);
+
+        let result = "<div class='result'>";
+        result +=
+          "<div><div class='resultLabel'>Balls:</div><div>" +
+          balls +
+          "</div></div>";
+        result +=
+          "<div><div class='resultLabel'>Frames:</div><div>" +
+          framesTable +
+          "</div></div>";
+        result +=
+          "<div><div class='resultLabel'>Scores:</div><div>" +
+          scoresTable +
+          "</div></div>";
+        result += "</div>";
+
+        let resultsContainer = document.querySelector("#resultsContainer");
+        let keepPrevious = document.querySelector("#keepResultsInput").checked;
+        if (!keepPrevious) {
+          resultsContainer.innerHTML = "";
+        }
+        resultsContainer.innerHTML = result + resultsContainer.innerHTML;
+      }
+    </script>
+  </head>
+
+  <body>
+    <div id="content">
+      <h1>Bowling Score Generator</h1>
+
+      <h2>Instructions</h2>
+
+      <ol>
+        <li type="1">
+          Choose the number of strikes, spares, and open frames (not including
+          bonus balls) by:
+          <ol type="a">
+            <li>Entering the values yourself, OR</li>
+            <li>Pressing the "Choose For Me" button.</li>
+          </ol>
+        </li>
+        <li>Press the "Generate Game" button.</li>
+      </ol>
+
+      <h2>Generator</h2>
+
+      <button id="chooseForMeButton">Choose For Me</button><br /><br />
+
+      <div class="inputPanel">
+        <div class="inputLabel">Strikes</div>
+        <div class="inputField">
+          <input required name="strikes" type="number" min="0" max="10" />
+        </div>
+      </div>
+      <div class="inputPanel">
+        <div class="inputLabel">Spares</div>
+        <div class="inputField">
+          <input required name="spares" type="number" min="0" max="10" />
+        </div>
+      </div>
+      <div class="inputPanel">
+        <div class="inputLabel">Open Frames</div>
+        <div class="inputField">
+          <input required name="openFrames" type="number" min="0" max="10" />
+        </div>
+      </div>
+      <p id="errorMessage"></p>
+      <button id="generateGameButton">Generate Game</button>
+      <input id="keepResultsInput" type="checkbox" /> Keep Previous Results
+
+      <h2>Results</h2>
+
+      <div id="resultsContainer"></div>
+    </div>
+  </body>
+</html>
