@@ -14,6 +14,7 @@ const BowlingUtils = (function () {
    * @returns an array of size 10 where each element is a string containing
    * two ball scores separated by a space
    */
+
   const generateFrames = function (strikes, spares, openFrames) {
     if (
       strikes < 0 ||
@@ -177,6 +178,16 @@ const BowlingUtils = (function () {
     return res;
   };
 
+  /**
+   * Takes an array of ten bowling frames and returns an array of scores, one
+   * for each frame. Frames are scored according to standard bowling rules.
+   *
+   * @param {array} frames an array of ten bowling frames, each string
+   *   containing the result of a single frame, with a strike represented by
+   *   "X", a spare represented by "S", and open frames represented by two
+   *   numbers separated by a space.
+   * @returns an array of ten scores, one for each frame
+   */
   const getScoresFromFrames = function (frames) {
     console.log(frames);
     let res = [];
@@ -268,11 +279,43 @@ const BowlingUtils = (function () {
     return res;
   };
 
+  /**
+   * Generates a random combination of strikes, spares, and open frames.
+   *
+   * Returns an object with the following properties:
+   * - strikes: the number of strikes
+   * - spares: the number of spares
+   * - openFrames: the number of open frames
+   */
+  const generateRandomFrameCombination = function () {
+    const totalFrames = 10;
+    let strikes, spares, openFrames;
+
+    // Helper function to generate a random integer between min and max (inclusive)
+    function getRandomInt(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    // Ensure the total number of frames adds up to 10
+    strikes = getRandomInt(0, totalFrames); // Random number of strikes
+    let remainingFrames = totalFrames - strikes;
+
+    spares = getRandomInt(0, remainingFrames); // Random number of spares
+    openFrames = remainingFrames - spares; // The rest will be open frames
+
+    return {
+      strikes: strikes,
+      spares: spares,
+      openFrames: openFrames,
+    };
+  };
+
   return {
     generateFrames: generateFrames,
     getBallsFromFrames: getBallsFromFrames,
     formatFramesAsTable: formatFramesAsTable,
     getScoresFromFrames: getScoresFromFrames,
     formatScores: formatScores,
+    generateRandomFrameCombination: generateRandomFrameCombination,
   };
 })();
