@@ -23,15 +23,19 @@ try {
         exit();
     } else {
         // If the database doesn't exist, redirect to errorPage.php with a message via POST
-        $errorMessage = "Database does not exist";
-        //header("Location: ./errorPage.php", true, 307);  // Using 307 to allow POST
-        echo "<form method='POST' action='./errorPage.php' id='errorForm'>
-                <input type='hidden' name='err' value='" . $errorMessage . "'>
-              </form>
-              <script>document.getElementById('errorForm').submit();</script>";
-        exit();
+        // $errorMessage = "Database does not exist";
+        // //header("Location: ./errorPage.php", true, 307);  // Using 307 to allow POST
+        // echo "<form method='POST' action='./errorPage.php' id='errorForm'>
+        //         <input type='hidden' name='err' value='" . $errorMessage . "'>
+        //       </form>
+        //       <script>document.getElementById('errorForm').submit();</script>";
+        // exit();
 
         //We'll fix this to just try to rebuild the database if it doesn't exist!
+
+        // If the database doesn't exist, redirect to rebuild.php
+        header('Location: ./Database/utils/rebuild.php');
+        exit();
     }
 } catch (PDOException $e) {
     // If there's a database connection error, pass the exception via POST to the error page
