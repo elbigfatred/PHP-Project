@@ -15,6 +15,12 @@ const BowlingUtils = (function () {
    * two ball scores separated by a space
    */
 
+  const generateRandomStrikeSpareOpenFrameCombination = function () {
+    let strikes = generateRandomBetween(0, 9);
+    let spares = generateRandomBetween(0, 9 - strikes);
+    let openFrames = 10 - strikes - spares;
+    return generateFrames(strikes, spares, openFrames);
+  };
   const generateFrames = function (strikes, spares, openFrames) {
     if (
       strikes < 0 ||
@@ -57,25 +63,31 @@ const BowlingUtils = (function () {
 
     // generate one bonus ball if the tenth frame is a spare
     if (frames[9].indexOf(SPARE_CHAR) !== -1) {
-      bonus = generateBonusBall(BONUS_BALL_STRIKE_FREQUENCY);
+      //bonus = generateBonusBall(BONUS_BALL_STRIKE_FREQUENCY); // make this 10 instead
+      bonus = generateRandomBetween(0, 10);
       frames.push(bonus);
     }
 
     // generate two bonus balls if the tenth frame is a strike
     if (frames[9] === STRIKE_CHAR) {
-      ball1 = generateBonusBall(BONUS_BALL_STRIKE_FREQUENCY);
-      if (ball1 === STRIKE_CHAR) {
-        bonus =
-          ball1 +
-          BALL_SEPARATOR_CHAR +
-          generateBonusBall(BONUS_BALL_STRIKE_FREQUENCY);
-      } else {
-        ball2 = generateRandomBetween(0, 10 - ball1); // might be a spare
-        if (ball1 + ball2 === 10) {
-          ball2 = SPARE_CHAR;
-        }
-        bonus = ball1 + BALL_SEPARATOR_CHAR + ball2;
-      }
+      //** Removing all this; just going with two 0-10s **/
+      // ball1 = generateBonusBall(BONUS_BALL_STRIKE_FREQUENCY);
+      // if (ball1 === STRIKE_CHAR) {
+      //   bonus =
+      //     ball1 +
+      //     BALL_SEPARATOR_CHAR +
+      //     generateBonusBall(BONUS_BALL_STRIKE_FREQUENCY);
+      // } else {
+      //   ball2 = generateRandomBetween(0, 10 - ball1); // might be a spare
+      //   if (ball1 + ball2 === 10) {
+      //     ball2 = SPARE_CHAR;
+      //   }
+      //   bonus = ball1 + BALL_SEPARATOR_CHAR + ball2;
+      // }
+      //** **/
+      ball1 = generateRandomBetween(0, 10);
+      ball2 = generateRandomBetween(0, 10);
+      bonus = ball1 + BALL_SEPARATOR_CHAR + ball2;
       frames.push(bonus);
     }
 
@@ -280,6 +292,19 @@ const BowlingUtils = (function () {
   };
 
   /**
+   * Takes an array of ten bowling scores and returns the total score.
+   *
+   * @param {array} arr an array of ten bowling scores
+   * @returns the total score
+   */
+  /******  c6169c3f-3f4d-4206-9335-9085035c0fa1  *******/
+  const getTotalScoreFromScoreArray = function (arr) {
+    //use reduce to sum the array
+    let total = arr.reduce((a, b) => a + b, 0);
+    return total;
+  };
+
+  /**
    * Generates a random combination of strikes, spares, and open frames.
    *
    * Returns an object with the following properties:
@@ -317,5 +342,8 @@ const BowlingUtils = (function () {
     getScoresFromFrames: getScoresFromFrames,
     formatScores: formatScores,
     generateRandomFrameCombination: generateRandomFrameCombination,
+    getTotalScoreFromScoreArray: getTotalScoreFromScoreArray,
+    generateRandomStrikeSpareOpenFrameCombination:
+      generateRandomStrikeSpareOpenFrameCombination,
   };
 })();

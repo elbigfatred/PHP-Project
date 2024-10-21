@@ -82,7 +82,7 @@
         color: red;
       }
     </style>
-    <script src="BowlingUtils.js"></script>
+    <script src="./BowlingUtils.js"></script>
     <script>
       window.onload = function () {
         document
@@ -142,6 +142,10 @@
           scoresTable +
           "</div></div>";
         result += "</div>";
+        result +=
+          "<br><div>Total Score: " +
+          BowlingUtils.getTotalScoreFromScoreArray(scoresArray) +
+          "</div><br>";
 
         let resultsContainer = document.querySelector("#resultsContainer");
         let keepPrevious = document.querySelector("#keepResultsInput").checked;
@@ -154,6 +158,8 @@
   </head>
 
   <body>
+    <!-- link to trials.php -->
+    <a href="../trials.php">Trials</a>
     <div id="content">
       <h1>Bowling Score Generator</h1>
 

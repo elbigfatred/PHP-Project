@@ -1,58 +1,1121 @@
-DROP DATABASE IF EXISTS bowling_tournament;
 
-CREATE DATABASE IF NOT EXISTS bowling_tournament;
-USE bowling_tournament;
+drop database if exists bowling_tournament;
+create database bowling_tournament;
+use bowling_tournament;
 
-CREATE TABLE IF NOT EXISTS teams (
-    team_id INT AUTO_INCREMENT PRIMARY KEY,
-    team_name VARCHAR(255) NOT NULL,
-    total_score INT DEFAULT 0,
-    rank INT DEFAULT NULL
+
+
+create table GAMESTATUS (
+	gameStatusID varchar(10) not null,
+	primary key (gameStatusID)
 );
 
-CREATE TABLE IF NOT EXISTS players (
-    player_id INT AUTO_INCREMENT PRIMARY KEY,
-    team_id INT,
-    player_name VARCHAR(255) NOT NULL,
-    player_address VARCHAR(255),
-    FOREIGN KEY (team_id) REFERENCES teams(team_id) ON DELETE CASCADE
+create table TOURNAMENTROUND (
+	roundID varchar(5) not null,
+	primary key (roundID)
 );
 
-CREATE TABLE IF NOT EXISTS games (
-    game_id INT AUTO_INCREMENT PRIMARY KEY,
-    team_id INT,
-    opponent_team_id INT,
-    round_type ENUM('qualification', 'seeded', 'random') NOT NULL,
-    scorekeeper_id INT,
-    status ENUM('scheduled', 'in_progress', 'complete') DEFAULT 'scheduled',
-    FOREIGN KEY (team_id) REFERENCES teams(team_id) ON DELETE CASCADE,
-    FOREIGN KEY (opponent_team_id) REFERENCES teams(team_id) ON DELETE SET NULL
+create table PROVINCE (
+	provinceID varchar(2) not null,
+	provinceName varchar(40) not null,
+	primary key (provinceID)
 );
 
-CREATE TABLE IF NOT EXISTS scores (
-    score_id INT AUTO_INCREMENT PRIMARY KEY,
-    game_id INT,
-    player_id INT,
-    frame_number INT NOT NULL,
-    ball1_score INT DEFAULT 0,
-    ball2_score INT DEFAULT 0,
-    bonus_ball_score INT DEFAULT 0,
-    FOREIGN KEY (game_id) REFERENCES games(game_id) ON DELETE CASCADE,
-    FOREIGN KEY (player_id) REFERENCES players(player_id) ON DELETE CASCADE
+create table TEAM (
+	teamID int not null,
+	teamName varchar(40),
+	primary key (teamID)
 );
 
-CREATE TABLE IF NOT EXISTS payouts (
-    payout_id INT AUTO_INCREMENT PRIMARY KEY,
-    team_id INT,
-    round_number INT NOT NULL,
-    amount DECIMAL(10, 2) NOT NULL,
-    FOREIGN KEY (team_id) REFERENCES teams(team_id) ON DELETE CASCADE
+
+create table PAYOUT (
+	payoutID int not null,
+	roundID varchar(5) not null,
+	teamID int,
+	amount int not null,
+	PRIMARY KEY (payoutID),
+	foreign key (roundID) references TOURNAMENTROUND(roundID),
+	foreign key (teamID) references TEAM(teamID)
+);
+	
+create table PLAYER (
+	playerID int not null,
+	teamID int,
+	firstName varchar(40),
+	lastName varchar(40),
+	hometown varchar(40),
+	provinceID varchar(2),
+	primary key (playerID),
+	foreign key (teamID) references TEAM(teamID),
+	foreign key (provinceID) references PROVINCE(provinceID)
 );
 
-CREATE TABLE IF NOT EXISTS rankings (
-    ranking_id INT AUTO_INCREMENT PRIMARY KEY,
-    team_id INT,
-    round_number INT NOT NULL,
-    rank INT NOT NULL,
-    FOREIGN KEY (team_id) REFERENCES teams(team_id) ON DELETE CASCADE
+create table MATCHUP (
+	matchID int not null,
+	roundID varchar(5) not null,
+	matchgroup int,
+	teamID int,
+	score int,
+	ranking int,
+	primary key (matchID),
+	foreign key (roundID) references TOURNAMENTROUND(roundID),
+	foreign key (teamID) references TEAM(teamID)
 );
+
+create table GAME (
+	gameID int not null,
+	matchID int,
+	gameNumber int,
+	gameStatusID varchar(10),
+	score int,
+	balls varchar(80),
+	playerID int,
+	primary key (gameID),
+	foreign key (matchID) references MATCHUP(matchID),
+	foreign key (gameStatusID) references gameStatus(gameStatusID),
+	foreign key (playerID) references PLAYER(playerID)
+);
+
+
+
+insert into GAMESTATUS values ('UNASSIGNED');
+insert into GAMESTATUS values ('AVAILABLE');
+insert into GAMESTATUS values ('INPROGRESS');
+insert into GAMESTATUS values ('COMPLETE');
+
+
+insert into TOURNAMENTROUND values ('QUAL');
+insert into TOURNAMENTROUND values ('SEED1');
+insert into TOURNAMENTROUND values ('SEED2');
+insert into TOURNAMENTROUND values ('SEED3');
+insert into TOURNAMENTROUND values ('SEED4');
+insert into TOURNAMENTROUND values ('RAND1');
+insert into TOURNAMENTROUND values ('RAND2');
+insert into TOURNAMENTROUND values ('RAND3');
+insert into TOURNAMENTROUND values ('RAND4');
+insert into TOURNAMENTROUND values ('FINAL');
+
+insert into PROVINCE values ('AB', 'Alberta');
+insert into PROVINCE values ('BC', 'British Columbia');
+insert into PROVINCE values ('MB', 'Manitoba');
+insert into PROVINCE values ('NB', 'New Brunswick');
+insert into PROVINCE values ('NL', 'Newfoundland and Labrador');
+insert into PROVINCE values ('NS', 'Nova Scotia');
+insert into PROVINCE values ('NT', 'Northwest Territories');
+insert into PROVINCE values ('NU', 'Nunavut');
+insert into PROVINCE values ('ON', 'Ontario');
+insert into PROVINCE values ('PE', 'Prince Edward Island');
+insert into PROVINCE values ('QC', 'Quebec');
+insert into PROVINCE values ('SK', 'Saskatchewan');
+insert into PROVINCE values ('YT', 'Yukon');
+insert into PROVINCE values ('XX', 'UNKNOWN'); 
+
+
+insert into PAYOUT (payoutID,roundID,amount) values (1,'QUAL',400);
+insert into PAYOUT (payoutID,roundID,amount) values (2,'QUAL',400);
+insert into PAYOUT (payoutID,roundID,amount) values (3,'QUAL',400);
+insert into PAYOUT (payoutID,roundID,amount) values (4,'QUAL',400);
+insert into PAYOUT (payoutID,roundID,amount) values (5,'QUAL',400);
+insert into PAYOUT (payoutID,roundID,amount) values (6,'QUAL',400);
+insert into PAYOUT (payoutID,roundID,amount) values (7,'QUAL',400);
+insert into PAYOUT (payoutID,roundID,amount) values (8,'QUAL',400);
+insert into PAYOUT (payoutID,roundID,amount) values (9,'QUAL',400);
+insert into PAYOUT (payoutID,roundID,amount) values (10,'QUAL',400);
+insert into PAYOUT (payoutID,roundID,amount) values (11,'QUAL',400);
+insert into PAYOUT (payoutID,roundID,amount) values (12,'QUAL',400);
+insert into PAYOUT (payoutID,roundID,amount) values (13,'QUAL',400);
+insert into PAYOUT (payoutID,roundID,amount) values (14,'QUAL',400);
+insert into PAYOUT (payoutID,roundID,amount) values (15,'QUAL',400);
+insert into PAYOUT (payoutID,roundID,amount) values (16,'QUAL',400);
+insert into PAYOUT (payoutID,roundID,amount) values (17,'SEED1',400);
+insert into PAYOUT (payoutID,roundID,amount) values (18,'SEED1',400);
+insert into PAYOUT (payoutID,roundID,amount) values (19,'SEED1',400);
+insert into PAYOUT (payoutID,roundID,amount) values (20,'SEED1',400);
+insert into PAYOUT (payoutID,roundID,amount) values (21,'SEED1',400);
+insert into PAYOUT (payoutID,roundID,amount) values (22,'SEED1',400);
+insert into PAYOUT (payoutID,roundID,amount) values (23,'SEED1',400);
+insert into PAYOUT (payoutID,roundID,amount) values (24,'SEED1',400);
+insert into PAYOUT (payoutID,roundID,amount) values (25,'RAND1',400);
+insert into PAYOUT (payoutID,roundID,amount) values (26,'RAND1',400);
+insert into PAYOUT (payoutID,roundID,amount) values (27,'RAND1',400);
+insert into PAYOUT (payoutID,roundID,amount) values (28,'RAND1',400);
+insert into PAYOUT (payoutID,roundID,amount) values (29,'RAND1',400);
+insert into PAYOUT (payoutID,roundID,amount) values (30,'RAND1',400);
+insert into PAYOUT (payoutID,roundID,amount) values (31,'RAND1',400);
+insert into PAYOUT (payoutID,roundID,amount) values (32,'RAND1',400);
+insert into PAYOUT (payoutID,roundID,amount) values (33,'SEED2',400);
+insert into PAYOUT (payoutID,roundID,amount) values (34,'SEED2',400);
+insert into PAYOUT (payoutID,roundID,amount) values (35,'SEED2',400);
+insert into PAYOUT (payoutID,roundID,amount) values (36,'SEED2',400);
+insert into PAYOUT (payoutID,roundID,amount) values (37,'RAND2',400);
+insert into PAYOUT (payoutID,roundID,amount) values (38,'RAND2',400);
+insert into PAYOUT (payoutID,roundID,amount) values (39,'RAND2',400);
+insert into PAYOUT (payoutID,roundID,amount) values (40,'RAND2',400);
+insert into PAYOUT (payoutID,roundID,amount) values (41,'SEED3',400);
+insert into PAYOUT (payoutID,roundID,amount) values (42,'SEED3',400);
+insert into PAYOUT (payoutID,roundID,amount) values (43,'RAND3',400);
+insert into PAYOUT (payoutID,roundID,amount) values (44,'RAND3',400);
+insert into PAYOUT (payoutID,roundID,amount) values (45,'SEED4',400);
+insert into PAYOUT (payoutID,roundID,amount) values (46,'RAND4',400);
+insert into PAYOUT (payoutID,roundID,amount) values (47,'FINAL',1600);
+insert into PAYOUT (payoutID,roundID,amount) values (48,'SEED3',500);
+insert into PAYOUT (payoutID,roundID,amount) values (49,'SEED3',500);
+insert into PAYOUT (payoutID,roundID,amount) values (50,'RAND3',500);
+insert into PAYOUT (payoutID,roundID,amount) values (51,'RAND3',500);
+insert into PAYOUT (payoutID,roundID,amount) values (52,'SEED4',1000);
+insert into PAYOUT (payoutID,roundID,amount) values (53,'RAND4',1000);
+insert into PAYOUT (payoutID,roundID,amount) values (54,'FINAL',2000);
+
+insert into TEAM (TeamID,TeamName) values (1,'TeamName1');
+insert into TEAM (TeamID,TeamName) values (2,'TeamName2');
+insert into TEAM (TeamID,TeamName) values (3,'TeamName3');
+insert into TEAM (TeamID,TeamName) values (4,'TeamName4');
+insert into TEAM (TeamID,TeamName) values (5,'TeamName5');
+insert into TEAM (TeamID,TeamName) values (6,'TeamName6');
+insert into TEAM (TeamID,TeamName) values (7,'TeamName7');
+insert into TEAM (TeamID,TeamName) values (8,'TeamName8');
+insert into TEAM (TeamID,TeamName) values (9,'TeamName9');
+insert into TEAM (TeamID,TeamName) values (10,'TeamName10');
+insert into TEAM (TeamID,TeamName) values (11,'TeamName11');
+insert into TEAM (TeamID,TeamName) values (12,'TeamName12');
+insert into TEAM (TeamID,TeamName) values (13,'TeamName13');
+insert into TEAM (TeamID,TeamName) values (14,'TeamName14');
+insert into TEAM (TeamID,TeamName) values (15,'TeamName15');
+insert into TEAM (TeamID,TeamName) values (16,'TeamName16');
+insert into TEAM (TeamID,TeamName) values (17,'TeamName17');
+insert into TEAM (TeamID,TeamName) values (18,'TeamName18');
+insert into TEAM (TeamID,TeamName) values (19,'TeamName19');
+insert into TEAM (TeamID,TeamName) values (20,'TeamName20');
+insert into TEAM (TeamID,TeamName) values (21,'TeamName21');
+insert into TEAM (TeamID,TeamName) values (22,'TeamName22');
+insert into TEAM (TeamID,TeamName) values (23,'TeamName23');
+insert into TEAM (TeamID,TeamName) values (24,'TeamName24');
+insert into TEAM (TeamID,TeamName) values (25,'TeamName25');
+insert into TEAM (TeamID,TeamName) values (26,'TeamName26');
+insert into TEAM (TeamID,TeamName) values (27,'TeamName27');
+insert into TEAM (TeamID,TeamName) values (28,'TeamName28');
+insert into TEAM (TeamID,TeamName) values (29,'TeamName29');
+insert into TEAM (TeamID,TeamName) values (30,'TeamName30');
+insert into TEAM (TeamID,TeamName) values (31,'TeamName31');
+insert into TEAM (TeamID,TeamName) values (32,'TeamName32');
+insert into TEAM (TeamID,TeamName) values (33,'TeamName33');
+insert into TEAM (TeamID,TeamName) values (34,'TeamName34');
+insert into TEAM (TeamID,TeamName) values (35,'TeamName35');
+insert into TEAM (TeamID,TeamName) values (36,'TeamName36');
+insert into TEAM (TeamID,TeamName) values (37,'TeamName37');
+insert into TEAM (TeamID,TeamName) values (38,'TeamName38');
+insert into TEAM (TeamID,TeamName) values (39,'TeamName39');
+insert into TEAM (TeamID,TeamName) values (40,'TeamName40');
+insert into TEAM (TeamID,TeamName) values (41,'TeamName41');
+insert into TEAM (TeamID,TeamName) values (42,'TeamName42');
+insert into TEAM (TeamID,TeamName) values (43,'TeamName43');
+insert into TEAM (TeamID,TeamName) values (44,'TeamName44');
+insert into TEAM (TeamID,TeamName) values (45,'TeamName45');
+insert into TEAM (TeamID,TeamName) values (46,'TeamName46');
+insert into TEAM (TeamID,TeamName) values (47,'TeamName47');
+insert into TEAM (TeamID,TeamName) values (48,'TeamName48');
+insert into TEAM (TeamID,TeamName) values (49,'TeamName49');
+insert into TEAM (TeamID,TeamName) values (50,'TeamName50');
+
+insert into PLAYER values (1,1,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (2,1,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (3,1,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (4,1,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (5,2,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (6,2,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (7,2,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (8,2,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (9,3,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (10,3,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (11,3,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (12,3,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (13,4,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (14,4,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (15,4,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (16,4,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (17,5,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (18,5,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (19,5,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (20,5,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (21,6,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (22,6,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (23,6,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (24,6,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (25,7,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (26,7,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (27,7,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (28,7,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (29,8,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (30,8,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (31,8,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (32,8,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (33,9,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (34,9,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (35,9,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (36,9,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (37,10,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (38,10,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (39,10,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (40,10,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (41,11,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (42,11,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (43,11,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (44,11,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (45,12,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (46,12,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (47,12,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (48,12,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (49,13,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (50,13,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (51,13,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (52,13,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (53,14,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (54,14,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (55,14,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (56,14,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (57,15,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (58,15,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (59,15,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (60,15,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (61,16,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (62,16,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (63,16,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (64,16,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (65,17,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (66,17,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (67,17,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (68,17,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (69,18,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (70,18,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (71,18,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (72,18,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (73,19,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (74,19,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (75,19,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (76,19,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (77,20,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (78,20,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (79,20,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (80,20,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (81,21,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (82,21,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (83,21,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (84,21,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (85,22,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (86,22,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (87,22,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (88,22,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (89,23,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (90,23,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (91,23,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (92,23,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (93,24,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (94,24,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (95,24,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (96,24,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (97,25,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (98,25,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (99,25,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (100,25,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (101,26,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (102,26,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (103,26,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (104,26,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (105,27,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (106,27,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (107,27,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (108,27,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (109,28,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (110,28,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (111,28,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (112,28,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (113,29,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (114,29,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (115,29,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (116,29,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (117,30,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (118,30,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (119,30,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (120,30,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (121,31,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (122,31,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (123,31,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (124,31,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (125,32,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (126,32,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (127,32,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (128,32,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (129,33,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (130,33,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (131,33,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (132,33,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (133,34,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (134,34,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (135,34,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (136,34,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (137,35,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (138,35,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (139,35,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (140,35,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (141,36,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (142,36,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (143,36,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (144,36,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (145,37,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (146,37,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (147,37,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (148,37,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (149,38,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (150,38,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (151,38,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (152,38,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (153,39,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (154,39,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (155,39,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (156,39,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (157,40,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (158,40,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (159,40,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (160,40,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (161,41,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (162,41,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (163,41,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (164,41,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (165,42,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (166,42,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (167,42,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (168,42,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (169,43,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (170,43,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (171,43,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (172,43,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (173,44,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (174,44,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (175,44,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (176,44,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (177,45,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (178,45,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (179,45,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (180,45,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (181,46,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (182,46,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (183,46,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (184,46,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (185,47,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (186,47,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (187,47,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (188,47,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (189,48,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (190,48,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (191,48,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (192,48,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (193,49,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (194,49,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (195,49,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (196,49,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (197,50,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (198,50,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (199,50,'First Name','Last Name','Some Town','XX');
+insert into PLAYER values (200,50,'First Name','Last Name','Some Town','XX');
+
+insert into MATCHUP (MatchID,RoundID,MatchGroup,TeamID) values (1,'QUAL',1,1);
+insert into MATCHUP (MatchID,RoundID,MatchGroup,TeamID) values (2,'QUAL',1,2);
+insert into MATCHUP (MatchID,RoundID,MatchGroup,TeamID) values (3,'QUAL',1,3);
+insert into MATCHUP (MatchID,RoundID,MatchGroup,TeamID) values (4,'QUAL',1,4);
+insert into MATCHUP (MatchID,RoundID,MatchGroup,TeamID) values (5,'QUAL',1,5);
+insert into MATCHUP (MatchID,RoundID,MatchGroup,TeamID) values (6,'QUAL',1,6);
+insert into MATCHUP (MatchID,RoundID,MatchGroup,TeamID) values (7,'QUAL',1,7);
+insert into MATCHUP (MatchID,RoundID,MatchGroup,TeamID) values (8,'QUAL',1,8);
+insert into MATCHUP (MatchID,RoundID,MatchGroup,TeamID) values (9,'QUAL',1,9);
+insert into MATCHUP (MatchID,RoundID,MatchGroup,TeamID) values (10,'QUAL',1,10);
+insert into MATCHUP (MatchID,RoundID,MatchGroup,TeamID) values (11,'QUAL',1,11);
+insert into MATCHUP (MatchID,RoundID,MatchGroup,TeamID) values (12,'QUAL',1,12);
+insert into MATCHUP (MatchID,RoundID,MatchGroup,TeamID) values (13,'QUAL',1,13);
+insert into MATCHUP (MatchID,RoundID,MatchGroup,TeamID) values (14,'QUAL',1,14);
+insert into MATCHUP (MatchID,RoundID,MatchGroup,TeamID) values (15,'QUAL',1,15);
+insert into MATCHUP (MatchID,RoundID,MatchGroup,TeamID) values (16,'QUAL',1,16);
+insert into MATCHUP (MatchID,RoundID,MatchGroup,TeamID) values (17,'QUAL',1,17);
+insert into MATCHUP (MatchID,RoundID,MatchGroup,TeamID) values (18,'QUAL',1,18);
+insert into MATCHUP (MatchID,RoundID,MatchGroup,TeamID) values (19,'QUAL',1,19);
+insert into MATCHUP (MatchID,RoundID,MatchGroup,TeamID) values (20,'QUAL',1,20);
+insert into MATCHUP (MatchID,RoundID,MatchGroup,TeamID) values (21,'QUAL',1,21);
+insert into MATCHUP (MatchID,RoundID,MatchGroup,TeamID) values (22,'QUAL',1,22);
+insert into MATCHUP (MatchID,RoundID,MatchGroup,TeamID) values (23,'QUAL',1,23);
+insert into MATCHUP (MatchID,RoundID,MatchGroup,TeamID) values (24,'QUAL',1,24);
+insert into MATCHUP (MatchID,RoundID,MatchGroup,TeamID) values (25,'QUAL',1,25);
+insert into MATCHUP (MatchID,RoundID,MatchGroup,TeamID) values (26,'QUAL',1,26);
+insert into MATCHUP (MatchID,RoundID,MatchGroup,TeamID) values (27,'QUAL',1,27);
+insert into MATCHUP (MatchID,RoundID,MatchGroup,TeamID) values (28,'QUAL',1,28);
+insert into MATCHUP (MatchID,RoundID,MatchGroup,TeamID) values (29,'QUAL',1,29);
+insert into MATCHUP (MatchID,RoundID,MatchGroup,TeamID) values (30,'QUAL',1,30);
+insert into MATCHUP (MatchID,RoundID,MatchGroup,TeamID) values (31,'QUAL',1,31);
+insert into MATCHUP (MatchID,RoundID,MatchGroup,TeamID) values (32,'QUAL',1,32);
+insert into MATCHUP (MatchID,RoundID,MatchGroup,TeamID) values (33,'QUAL',1,33);
+insert into MATCHUP (MatchID,RoundID,MatchGroup,TeamID) values (34,'QUAL',1,34);
+insert into MATCHUP (MatchID,RoundID,MatchGroup,TeamID) values (35,'QUAL',1,35);
+insert into MATCHUP (MatchID,RoundID,MatchGroup,TeamID) values (36,'QUAL',1,36);
+insert into MATCHUP (MatchID,RoundID,MatchGroup,TeamID) values (37,'QUAL',1,37);
+insert into MATCHUP (MatchID,RoundID,MatchGroup,TeamID) values (38,'QUAL',1,38);
+insert into MATCHUP (MatchID,RoundID,MatchGroup,TeamID) values (39,'QUAL',1,39);
+insert into MATCHUP (MatchID,RoundID,MatchGroup,TeamID) values (40,'QUAL',1,40);
+insert into MATCHUP (MatchID,RoundID,MatchGroup,TeamID) values (41,'QUAL',1,41);
+insert into MATCHUP (MatchID,RoundID,MatchGroup,TeamID) values (42,'QUAL',1,42);
+insert into MATCHUP (MatchID,RoundID,MatchGroup,TeamID) values (43,'QUAL',1,43);
+insert into MATCHUP (MatchID,RoundID,MatchGroup,TeamID) values (44,'QUAL',1,44);
+insert into MATCHUP (MatchID,RoundID,MatchGroup,TeamID) values (45,'QUAL',1,45);
+insert into MATCHUP (MatchID,RoundID,MatchGroup,TeamID) values (46,'QUAL',1,46);
+insert into MATCHUP (MatchID,RoundID,MatchGroup,TeamID) values (47,'QUAL',1,47);
+insert into MATCHUP (MatchID,RoundID,MatchGroup,TeamID) values (48,'QUAL',1,48);
+insert into MATCHUP (MatchID,RoundID,MatchGroup,TeamID) values (49,'QUAL',1,49);
+insert into MATCHUP (MatchID,RoundID,MatchGroup,TeamID) values (50,'QUAL',1,50);
+
+insert into MATCHUP (MatchID,RoundID,MatchGroup) values (51,'SEED1',1);
+insert into MATCHUP (MatchID,RoundID,MatchGroup) values (52,'SEED1',1);
+insert into MATCHUP (MatchID,RoundID,MatchGroup) values (53,'SEED1',2);
+insert into MATCHUP (MatchID,RoundID,MatchGroup) values (54,'SEED1',2);
+insert into MATCHUP (MatchID,RoundID,MatchGroup) values (55,'SEED1',3);
+insert into MATCHUP (MatchID,RoundID,MatchGroup) values (56,'SEED1',3);
+insert into MATCHUP (MatchID,RoundID,MatchGroup) values (57,'SEED1',4);
+insert into MATCHUP (MatchID,RoundID,MatchGroup) values (58,'SEED1',4);
+insert into MATCHUP (MatchID,RoundID,MatchGroup) values (59,'SEED1',5);
+insert into MATCHUP (MatchID,RoundID,MatchGroup) values (60,'SEED1',5);
+insert into MATCHUP (MatchID,RoundID,MatchGroup) values (61,'SEED1',6);
+insert into MATCHUP (MatchID,RoundID,MatchGroup) values (62,'SEED1',6);
+insert into MATCHUP (MatchID,RoundID,MatchGroup) values (63,'SEED1',7);
+insert into MATCHUP (MatchID,RoundID,MatchGroup) values (64,'SEED1',7);
+insert into MATCHUP (MatchID,RoundID,MatchGroup) values (65,'SEED1',8);
+insert into MATCHUP (MatchID,RoundID,MatchGroup) values (66,'SEED1',8);
+insert into MATCHUP (MatchID,RoundID,MatchGroup) values (67,'SEED2',1);
+insert into MATCHUP (MatchID,RoundID,MatchGroup) values (68,'SEED2',1);
+insert into MATCHUP (MatchID,RoundID,MatchGroup) values (69,'SEED2',2);
+insert into MATCHUP (MatchID,RoundID,MatchGroup) values (70,'SEED2',2);
+insert into MATCHUP (MatchID,RoundID,MatchGroup) values (71,'SEED2',3);
+insert into MATCHUP (MatchID,RoundID,MatchGroup) values (72,'SEED2',3);
+insert into MATCHUP (MatchID,RoundID,MatchGroup) values (73,'SEED2',4);
+insert into MATCHUP (MatchID,RoundID,MatchGroup) values (74,'SEED2',4);
+insert into MATCHUP (MatchID,RoundID,MatchGroup) values (75,'SEED3',1);
+insert into MATCHUP (MatchID,RoundID,MatchGroup) values (76,'SEED3',1);
+insert into MATCHUP (MatchID,RoundID,MatchGroup) values (77,'SEED3',2);
+insert into MATCHUP (MatchID,RoundID,MatchGroup) values (78,'SEED3',2);
+insert into MATCHUP (MatchID,RoundID,MatchGroup) values (79,'SEED4',1);
+insert into MATCHUP (MatchID,RoundID,MatchGroup) values (80,'SEED4',1);
+insert into MATCHUP (MatchID,RoundID,MatchGroup) values (81,'RAND1',1);
+insert into MATCHUP (MatchID,RoundID,MatchGroup) values (82,'RAND1',1);
+insert into MATCHUP (MatchID,RoundID,MatchGroup) values (83,'RAND1',2);
+insert into MATCHUP (MatchID,RoundID,MatchGroup) values (84,'RAND1',2);
+insert into MATCHUP (MatchID,RoundID,MatchGroup) values (85,'RAND1',3);
+insert into MATCHUP (MatchID,RoundID,MatchGroup) values (86,'RAND1',3);
+insert into MATCHUP (MatchID,RoundID,MatchGroup) values (87,'RAND1',4);
+insert into MATCHUP (MatchID,RoundID,MatchGroup) values (88,'RAND1',4);
+insert into MATCHUP (MatchID,RoundID,MatchGroup) values (89,'RAND1',5);
+insert into MATCHUP (MatchID,RoundID,MatchGroup) values (90,'RAND1',5);
+insert into MATCHUP (MatchID,RoundID,MatchGroup) values (91,'RAND1',6);
+insert into MATCHUP (MatchID,RoundID,MatchGroup) values (92,'RAND1',6);
+insert into MATCHUP (MatchID,RoundID,MatchGroup) values (93,'RAND1',7);
+insert into MATCHUP (MatchID,RoundID,MatchGroup) values (94,'RAND1',7);
+insert into MATCHUP (MatchID,RoundID,MatchGroup) values (95,'RAND1',8);
+insert into MATCHUP (MatchID,RoundID,MatchGroup) values (96,'RAND1',8);
+insert into MATCHUP (MatchID,RoundID,MatchGroup) values (97,'RAND2',1);
+insert into MATCHUP (MatchID,RoundID,MatchGroup) values (98,'RAND2',1);
+insert into MATCHUP (MatchID,RoundID,MatchGroup) values (99,'RAND2',2);
+insert into MATCHUP (MatchID,RoundID,MatchGroup) values (100,'RAND2',2);
+insert into MATCHUP (MatchID,RoundID,MatchGroup) values (101,'RAND2',3);
+insert into MATCHUP (MatchID,RoundID,MatchGroup) values (102,'RAND2',3);
+insert into MATCHUP (MatchID,RoundID,MatchGroup) values (103,'RAND2',4);
+insert into MATCHUP (MatchID,RoundID,MatchGroup) values (104,'RAND2',4);
+insert into MATCHUP (MatchID,RoundID,MatchGroup) values (105,'RAND3',1);
+insert into MATCHUP (MatchID,RoundID,MatchGroup) values (106,'RAND3',1);
+insert into MATCHUP (MatchID,RoundID,MatchGroup) values (107,'RAND3',2);
+insert into MATCHUP (MatchID,RoundID,MatchGroup) values (108,'RAND3',2);
+insert into MATCHUP (MatchID,RoundID,MatchGroup) values (109,'RAND4',1);
+insert into MATCHUP (MatchID,RoundID,MatchGroup) values (110,'RAND4',1);
+insert into MATCHUP (MatchID,RoundID,MatchGroup) values (111,'FINAL',1);
+insert into MATCHUP (MatchID,RoundID,MatchGroup) values (112,'FINAL',1);
+
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (1,1,1,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (2,1,2,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (3,1,3,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (4,1,4,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (5,1,5,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (6,1,6,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (7,1,7,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (8,1,8,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (9,2,1,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (10,2,2,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (11,2,3,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (12,2,4,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (13,2,5,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (14,2,6,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (15,2,7,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (16,2,8,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (17,3,1,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (18,3,2,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (19,3,3,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (20,3,4,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (21,3,5,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (22,3,6,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (23,3,7,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (24,3,8,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (25,4,1,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (26,4,2,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (27,4,3,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (28,4,4,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (29,4,5,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (30,4,6,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (31,4,7,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (32,4,8,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (33,5,1,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (34,5,2,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (35,5,3,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (36,5,4,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (37,5,5,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (38,5,6,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (39,5,7,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (40,5,8,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (41,6,1,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (42,6,2,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (43,6,3,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (44,6,4,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (45,6,5,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (46,6,6,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (47,6,7,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (48,6,8,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (49,7,1,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (50,7,2,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (51,7,3,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (52,7,4,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (53,7,5,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (54,7,6,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (55,7,7,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (56,7,8,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (57,8,1,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (58,8,2,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (59,8,3,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (60,8,4,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (61,8,5,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (62,8,6,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (63,8,7,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (64,8,8,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (65,9,1,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (66,9,2,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (67,9,3,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (68,9,4,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (69,9,5,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (70,9,6,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (71,9,7,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (72,9,8,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (73,10,1,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (74,10,2,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (75,10,3,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (76,10,4,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (77,10,5,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (78,10,6,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (79,10,7,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (80,10,8,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (81,11,1,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (82,11,2,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (83,11,3,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (84,11,4,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (85,11,5,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (86,11,6,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (87,11,7,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (88,11,8,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (89,12,1,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (90,12,2,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (91,12,3,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (92,12,4,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (93,12,5,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (94,12,6,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (95,12,7,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (96,12,8,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (97,13,1,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (98,13,2,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (99,13,3,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (100,13,4,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (101,13,5,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (102,13,6,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (103,13,7,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (104,13,8,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (105,14,1,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (106,14,2,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (107,14,3,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (108,14,4,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (109,14,5,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (110,14,6,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (111,14,7,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (112,14,8,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (113,15,1,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (114,15,2,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (115,15,3,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (116,15,4,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (117,15,5,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (118,15,6,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (119,15,7,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (120,15,8,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (121,16,1,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (122,16,2,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (123,16,3,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (124,16,4,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (125,16,5,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (126,16,6,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (127,16,7,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (128,16,8,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (129,17,1,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (130,17,2,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (131,17,3,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (132,17,4,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (133,17,5,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (134,17,6,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (135,17,7,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (136,17,8,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (137,18,1,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (138,18,2,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (139,18,3,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (140,18,4,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (141,18,5,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (142,18,6,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (143,18,7,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (144,18,8,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (145,19,1,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (146,19,2,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (147,19,3,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (148,19,4,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (149,19,5,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (150,19,6,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (151,19,7,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (152,19,8,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (153,20,1,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (154,20,2,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (155,20,3,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (156,20,4,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (157,20,5,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (158,20,6,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (159,20,7,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (160,20,8,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (161,21,1,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (162,21,2,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (163,21,3,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (164,21,4,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (165,21,5,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (166,21,6,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (167,21,7,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (168,21,8,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (169,22,1,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (170,22,2,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (171,22,3,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (172,22,4,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (173,22,5,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (174,22,6,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (175,22,7,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (176,22,8,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (177,23,1,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (178,23,2,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (179,23,3,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (180,23,4,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (181,23,5,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (182,23,6,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (183,23,7,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (184,23,8,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (185,24,1,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (186,24,2,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (187,24,3,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (188,24,4,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (189,24,5,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (190,24,6,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (191,24,7,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (192,24,8,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (193,25,1,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (194,25,2,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (195,25,3,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (196,25,4,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (197,25,5,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (198,25,6,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (199,25,7,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (200,25,8,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (201,26,1,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (202,26,2,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (203,26,3,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (204,26,4,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (205,26,5,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (206,26,6,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (207,26,7,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (208,26,8,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (209,27,1,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (210,27,2,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (211,27,3,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (212,27,4,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (213,27,5,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (214,27,6,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (215,27,7,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (216,27,8,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (217,28,1,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (218,28,2,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (219,28,3,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (220,28,4,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (221,28,5,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (222,28,6,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (223,28,7,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (224,28,8,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (225,29,1,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (226,29,2,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (227,29,3,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (228,29,4,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (229,29,5,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (230,29,6,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (231,29,7,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (232,29,8,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (233,30,1,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (234,30,2,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (235,30,3,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (236,30,4,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (237,30,5,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (238,30,6,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (239,30,7,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (240,30,8,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (241,31,1,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (242,31,2,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (243,31,3,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (244,31,4,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (245,31,5,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (246,31,6,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (247,31,7,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (248,31,8,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (249,32,1,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (250,32,2,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (251,32,3,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (252,32,4,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (253,32,5,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (254,32,6,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (255,32,7,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (256,32,8,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (257,33,1,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (258,33,2,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (259,33,3,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (260,33,4,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (261,33,5,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (262,33,6,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (263,33,7,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (264,33,8,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (265,34,1,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (266,34,2,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (267,34,3,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (268,34,4,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (269,34,5,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (270,34,6,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (271,34,7,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (272,34,8,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (273,35,1,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (274,35,2,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (275,35,3,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (276,35,4,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (277,35,5,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (278,35,6,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (279,35,7,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (280,35,8,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (281,36,1,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (282,36,2,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (283,36,3,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (284,36,4,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (285,36,5,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (286,36,6,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (287,36,7,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (288,36,8,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (289,37,1,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (290,37,2,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (291,37,3,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (292,37,4,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (293,37,5,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (294,37,6,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (295,37,7,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (296,37,8,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (297,38,1,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (298,38,2,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (299,38,3,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (300,38,4,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (301,38,5,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (302,38,6,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (303,38,7,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (304,38,8,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (305,39,1,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (306,39,2,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (307,39,3,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (308,39,4,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (309,39,5,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (310,39,6,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (311,39,7,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (312,39,8,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (313,40,1,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (314,40,2,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (315,40,3,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (316,40,4,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (317,40,5,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (318,40,6,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (319,40,7,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (320,40,8,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (321,41,1,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (322,41,2,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (323,41,3,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (324,41,4,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (325,41,5,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (326,41,6,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (327,41,7,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (328,41,8,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (329,42,1,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (330,42,2,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (331,42,3,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (332,42,4,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (333,42,5,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (334,42,6,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (335,42,7,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (336,42,8,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (337,43,1,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (338,43,2,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (339,43,3,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (340,43,4,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (341,43,5,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (342,43,6,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (343,43,7,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (344,43,8,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (345,44,1,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (346,44,2,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (347,44,3,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (348,44,4,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (349,44,5,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (350,44,6,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (351,44,7,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (352,44,8,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (353,45,1,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (354,45,2,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (355,45,3,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (356,45,4,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (357,45,5,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (358,45,6,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (359,45,7,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (360,45,8,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (361,46,1,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (362,46,2,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (363,46,3,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (364,46,4,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (365,46,5,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (366,46,6,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (367,46,7,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (368,46,8,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (369,47,1,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (370,47,2,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (371,47,3,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (372,47,4,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (373,47,5,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (374,47,6,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (375,47,7,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (376,47,8,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (377,48,1,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (378,48,2,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (379,48,3,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (380,48,4,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (381,48,5,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (382,48,6,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (383,48,7,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (384,48,8,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (385,49,1,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (386,49,2,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (387,49,3,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (388,49,4,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (389,49,5,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (390,49,6,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (391,49,7,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (392,49,8,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (393,50,1,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (394,50,2,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (395,50,3,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (396,50,4,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (397,50,5,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (398,50,6,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (399,50,7,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (400,50,8,'AVAILABLE');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (401,51,1,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (402,51,2,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (403,51,3,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (404,52,1,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (405,52,2,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (406,52,3,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (407,53,1,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (408,53,2,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (409,53,3,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (410,54,1,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (411,54,2,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (412,54,3,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (413,55,1,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (414,55,2,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (415,55,3,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (416,56,1,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (417,56,2,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (418,56,3,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (419,57,1,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (420,57,2,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (421,57,3,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (422,58,1,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (423,58,2,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (424,58,3,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (425,59,1,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (426,59,2,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (427,59,3,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (428,60,1,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (429,60,2,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (430,60,3,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (431,61,1,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (432,61,2,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (433,61,3,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (434,62,1,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (435,62,2,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (436,62,3,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (437,63,1,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (438,63,2,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (439,63,3,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (440,64,1,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (441,64,2,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (442,64,3,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (443,65,1,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (444,65,2,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (445,65,3,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (446,66,1,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (447,66,2,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (448,66,3,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (449,67,1,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (450,67,2,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (451,67,3,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (452,68,1,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (453,68,2,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (454,68,3,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (455,69,1,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (456,69,2,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (457,69,3,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (458,70,1,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (459,70,2,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (460,70,3,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (461,71,1,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (462,71,2,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (463,71,3,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (464,72,1,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (465,72,2,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (466,72,3,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (467,73,1,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (468,73,2,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (469,73,3,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (470,74,1,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (471,74,2,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (472,74,3,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (473,75,1,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (474,75,2,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (475,75,3,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (476,76,1,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (477,76,2,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (478,76,3,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (479,77,1,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (480,77,2,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (481,77,3,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (482,78,1,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (483,78,2,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (484,78,3,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (485,79,1,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (486,79,2,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (487,79,3,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (488,80,1,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (489,80,2,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (490,80,3,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (491,81,1,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (492,81,2,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (493,81,3,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (494,82,1,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (495,82,2,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (496,82,3,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (497,83,1,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (498,83,2,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (499,83,3,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (500,84,1,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (501,84,2,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (502,84,3,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (503,85,1,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (504,85,2,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (505,85,3,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (506,86,1,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (507,86,2,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (508,86,3,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (509,87,1,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (510,87,2,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (511,87,3,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (512,88,1,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (513,88,2,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (514,88,3,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (515,89,1,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (516,89,2,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (517,89,3,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (518,90,1,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (519,90,2,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (520,90,3,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (521,91,1,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (522,91,2,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (523,91,3,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (524,92,1,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (525,92,2,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (526,92,3,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (527,93,1,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (528,93,2,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (529,93,3,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (530,94,1,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (531,94,2,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (532,94,3,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (533,95,1,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (534,95,2,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (535,95,3,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (536,96,1,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (537,96,2,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (538,96,3,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (539,97,1,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (540,97,2,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (541,97,3,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (542,98,1,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (543,98,2,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (544,98,3,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (545,99,1,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (546,99,2,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (547,99,3,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (548,100,1,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (549,100,2,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (550,100,3,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (551,101,1,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (552,101,2,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (553,101,3,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (554,102,1,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (555,102,2,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (556,102,3,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (557,103,1,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (558,103,2,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (559,103,3,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (560,104,1,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (561,104,2,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (562,104,3,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (563,105,1,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (564,105,2,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (565,105,3,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (566,106,1,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (567,106,2,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (568,106,3,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (569,107,1,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (570,107,2,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (571,107,3,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (572,108,1,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (573,108,2,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (574,108,3,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (575,109,1,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (576,109,2,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (577,109,3,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (578,110,1,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (579,110,2,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (580,110,3,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (581,111,1,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (582,111,2,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (583,111,3,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (584,112,1,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (585,112,2,'UNASSIGNED');
+insert into GAME (GameID,MatchID,GameNumber,gameStatusID) values (586,112,3,'UNASSIGNED');
+

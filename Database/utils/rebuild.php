@@ -27,10 +27,10 @@ try {
     $conn->exec($sql);
 
     // Step 3: Verify if key tables (like 'teams' and 'players') were created successfully
-    $stmt = $conn->query("SHOW TABLES LIKE 'teams'");
+    $stmt = $conn->query("SHOW TABLES LIKE 'team'");
     $teamTableExists = $stmt->rowCount() > 0;
 
-    $stmt = $conn->query("SHOW TABLES LIKE 'players'");
+    $stmt = $conn->query("SHOW TABLES LIKE 'player'");
     $playerTableExists = $stmt->rowCount() > 0;
 
     // Step 4: Check if both tables exist, meaning the rebuild was successful
