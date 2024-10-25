@@ -23,43 +23,59 @@ class DAO
         $results = []; // Array to store the results
 
         try {
-            $sql = "SELECT * FROM " .  $tableName; // SQL query to fetch all items from the table
+            // SQL query to fetch all items from the table
+            $sql = "SELECT * FROM " .  $tableName;
             $stmt = $this->conn->prepare($sql);
+
             // Execute the getAllStatement and fetch all the results
             $stmt->execute(); // Execute the statement
             $dbresults = $stmt->fetchAll(PDO::FETCH_ASSOC); // Fetch all the results
 
-            $className = strtolower($tableName); // Convert the table name to lowercase to match the class name
+            // Convert the table name to lowercase to match the class name
+            $className = strtolower($tableName);
 
-            // Loop through the results and create an objects for each row
+            // Check if the class exists (preventing reflection issues)
+            if (!class_exists($className)) {
+                throw new Exception("Class $className does not exist.");
+            }
+
+            // Loop through the results and create objects for each row
             foreach ($dbresults as $row) {
-                $reflector = new ReflectionClass($className); // Get the class, based on the table name
-                $constructorParams = $reflector->getConstructor()->getParameters(); // Get the constructor parameters
+                $reflector = new ReflectionClass($className); // Get the class based on the table name
 
-                //Extract values from the db row that match the constructor parameters
+                // Get the constructor parameters
+                $constructorParams = $reflector->getConstructor()->getParameters();
+
+                // Extract values from the db row that match the constructor parameters
                 $constructorArgs = []; // Array to store the constructor arguments
+
                 foreach ($constructorParams as $param) {
                     $paramName = $param->getName(); // Get the parameter name, e.g. id
-                    if (isset($row[$paramName])) {
-                        $constructorArgs[] = $row[$paramName]; // Add the value to the constructor arguments
-                    } else {
-                        throw new Exception("No value for $paramName");
-                    }
+
+                    // Check if the value exists in the row or set it to null if it doesn't
+                    $constructorArgs[] = $row[$paramName] ?? null;
                 }
 
-                //finally, create the object
+                // Finally, create the object using the arguments
                 $item = $reflector->newInstanceArgs($constructorArgs);
                 array_push($results, $item);
             }
         } catch (PDOException $e) {
+            // Log the error (optional)
+            error_log("PDO Error: " . $e->getMessage());
+
             // If there's an error, set the results to an empty array
             $results = [];
+        } catch (ReflectionException $e) {
+            // Log reflection errors (optional)
+            error_log("Reflection Error: " . $e->getMessage());
         } finally {
             // Close the cursor if the statement is not null
             if (!is_null($stmt)) {
                 $stmt->closeCursor();
             }
         }
+
         return $results; // Return the results array
     }
 }
