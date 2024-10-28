@@ -78,7 +78,7 @@
 
     <div id="teams" class="tab-content">
       <h2>Teams</h2>
-      <table class="table table-hover">
+      <table class="table table-hover" id="teamsView">
         <thead>
           <tr>
             <th>Team Name</th>
