@@ -138,6 +138,150 @@
         Use the panel to manage teams and players before the tournament
         begins.
       </p>
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-md-12">
+            <h3 class="text-center">
+              Modify Teams
+            </h3>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-5">
+            <h3 class="text-center text-info">
+              Teams
+            </h3>
+            <div class="table-responsive">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Product</th>
+                    <th>Payment Taken</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>1</td>
+                    <td>TB - Monthly</td>
+                    <td>01/04/2012</td>
+                    <td>Default</td>
+                  </tr>
+                  <tr class="table-active">
+                    <td>1</td>
+                    <td>TB - Monthly</td>
+                    <td>01/04/2012</td>
+                    <td>Approved</td>
+                  </tr>
+                  <tr class="table-success">
+                    <td>2</td>
+                    <td>TB - Monthly</td>
+                    <td>02/04/2012</td>
+                    <td>Declined</td>
+                  </tr>
+                  <tr class="table-warning">
+                    <td>3</td>
+                    <td>TB - Monthly</td>
+                    <td>03/04/2012</td>
+                    <td>Pending</td>
+                  </tr>
+                  <tr class="table-danger">
+                    <td>4</td>
+                    <td>TB - Monthly</td>
+                    <td>04/04/2012</td>
+                    <td>Call in to confirm</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="row">
+              <div class="col-md-4">
+                <button type="button" class="btn btn-success btn-lg btn-block">
+                  Add Team
+                </button>
+              </div>
+              <div class="col-md-4">
+                <button type="button" class="btn btn-lg btn-warning btn-block">
+                  Update Team
+                </button>
+              </div>
+              <div class="col-md-4">
+                <button type="button" class="btn btn-lg btn-danger btn-block">
+                  Delete Team
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-2"></div>
+          <div class="col-md-5">
+            <h3 class="text-center text-info">
+              Players
+            </h3>
+            <div class="table-responsive">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Product</th>
+                    <th>Payment Taken</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>1</td>
+                    <td>TB - Monthly</td>
+                    <td>01/04/2012</td>
+                    <td>Default</td>
+                  </tr>
+                  <tr class="table-active">
+                    <td>1</td>
+                    <td>TB - Monthly</td>
+                    <td>01/04/2012</td>
+                    <td>Approved</td>
+                  </tr>
+                  <tr class="table-success">
+                    <td>2</td>
+                    <td>TB - Monthly</td>
+                    <td>02/04/2012</td>
+                    <td>Declined</td>
+                  </tr>
+                  <tr class="table-warning">
+                    <td>3</td>
+                    <td>TB - Monthly</td>
+                    <td>03/04/2012</td>
+                    <td>Pending</td>
+                  </tr>
+                  <tr class="table-danger">
+                    <td>4</td>
+                    <td>TB - Monthly</td>
+                    <td>04/04/2012</td>
+                    <td>Call in to confirm</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="row">
+              <div class="col-md-4">
+                <button type="button" class="btn btn-success btn-block btn-lg">
+                  Add Player
+                </button>
+              </div>
+              <div class="col-md-4">
+                <button type="button" class="btn btn-lg btn-block btn-warning">
+                  Update Player
+                </button>
+              </div>
+              <div class="col-md-4">
+                <button type="button" class="btn btn-block btn-lg btn-danger">
+                  Delete Player
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
