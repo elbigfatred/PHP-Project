@@ -107,9 +107,9 @@ class adminServices
     {
         // Proceed with update logic
         try {
-            return $this->playerDAO->updatePlayer($player); // Ensure updatePlayer handles player object correctly
+            return $this->playerDAO->updatePlayer($player); 
         } catch (Exception $ex) {
-            return false; // Handle the exception gracefully
+            return false; 
         }
     }
 
