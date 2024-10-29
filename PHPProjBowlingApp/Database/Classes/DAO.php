@@ -18,6 +18,16 @@ class DAO
         $this->conn = $conn;
     }
 
+    /**
+     * Get all items from the database table given by $tableName.
+     *
+     * Creates objects from the table's rows using the table's name as the class name.
+     * The class must have a constructor with parameters that match the table's columns.
+     * The function will return an array of objects where each object represents a row in the table.
+     *
+     * @param string $tableName The name of the table in the database.
+     * @return array An array of objects where each object represents a row in the table.
+     */
     public function getAllItems($tableName)
     {
         $results = []; // Array to store the results
@@ -77,5 +87,101 @@ class DAO
         }
 
         return $results; // Return the results array
+    }
+
+    /**
+     * Get a single item from the database table given by $tableName and $id.
+     *
+     * Creates an object from the table's row using the table's name as the class name.
+     * The class must have a constructor with parameters that match the table's columns.
+     * If the item exists, the function returns an object representing the row; otherwise, it returns null.
+     *
+     * @param string $tableName The name of the table in the database.
+     * @param mixed $id The ID of the row to retrieve (integer or string).
+     * @return object|null An object representing the row, or null if the item doesn't exist.
+     */
+    public function getItemById($tableName, $id)
+    {
+        $item = null; // Variable to store the result
+
+        // Define a mapping of table names to their respective ID columns
+        $idColumns = [
+            'team' => 'teamID',
+            'player' => 'playerID',
+            'province' => 'provinceID',
+            'tournamentround' => 'roundID',
+            'matchup' => 'matchID',
+            'game' => 'gameID',
+            'gamestatus' => 'gameStatusID',
+            'payout' => 'payoutID'
+        ];
+
+        try {
+            // Check if the table has a defined ID column
+            if (!isset($idColumns[$tableName])) {
+                throw new Exception("ID column for table $tableName not defined.");
+            }
+
+            // Get the correct ID column name for the table
+            $idColumn = $idColumns[$tableName];
+
+            // SQL query to fetch the item with the specific ID
+            $sql = "SELECT * FROM " . $tableName . " WHERE " . $idColumn . " = :id LIMIT 1";
+            $stmt = $this->conn->prepare($sql);
+
+            // Determine the ID data type and bind it accordingly
+            if (is_int($id)) {
+                $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+            } else {
+                $stmt->bindParam(':id', $id, PDO::PARAM_STR);
+            }
+
+            // Execute the statement
+            $stmt->execute();
+
+            // Fetch the result
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            // If a row is found, proceed to create an object
+            if ($row) {
+                // Convert the table name to lowercase to match the class name
+                $className = strtolower($tableName);
+
+                // Check if the class exists
+                if (!class_exists($className)) {
+                    throw new Exception("Class $className does not exist.");
+                }
+
+                // Reflect the class and get its constructor parameters
+                $reflector = new ReflectionClass($className);
+                $constructorParams = $reflector->getConstructor()->getParameters();
+
+                // Extract values from the row to match the constructor parameters
+                $constructorArgs = [];
+                foreach ($constructorParams as $param) {
+                    $paramName = $param->getName();
+                    $constructorArgs[] = $row[$paramName] ?? null;
+                }
+
+                // Create an instance of the class with the constructor arguments
+                $item = $reflector->newInstanceArgs($constructorArgs);
+            }
+        } catch (PDOException $e) {
+            // Log the error (optional)
+            error_log("PDO Error: " . $e->getMessage());
+        } catch (ReflectionException $e) {
+            // Log reflection errors (optional)
+            error_log("Reflection Error: " . $e->getMessage());
+        } catch (Exception $e) {
+            // Log any other errors (optional)
+            error_log("Error: " . $e->getMessage());
+        } finally {
+            // Close the cursor if the statement is not null
+            if (!is_null($stmt)) {
+                $stmt->closeCursor();
+            }
+        }
+
+        return $item; // Return the item or null if not found
     }
 }

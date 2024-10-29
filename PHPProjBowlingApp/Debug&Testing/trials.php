@@ -15,14 +15,17 @@
     <h2>Build a table from table name</h2>
     <label for="tableInput">Table Name: </label>
     <input type="text" id="tableInput" name="tableInput">
-    <button type="button" id="tableButton">Get Table</button>
+    <label for="idInput">ID: </label>
+    <input type="text" id="idInput" name="idInput" placeholder="1">
+    <button type="button" id="tableButton">Get Full Table</button>
+    <button type="button" id="idButton">Get Item By ID</button>
   </div>
 
   <div id="tableOutput"></div>
 
   <script>
     document.getElementById("tableButton").addEventListener("click", getTable);
-
+    document.getElementById("idButton").addEventListener("click", getItemById);
 
 
     async function getTable() {
@@ -59,10 +62,49 @@
       }
     }
 
+    async function getItemById() {
+      let table = document.getElementById("tableInput").value; // Get the input value (table name)
+      let id = document.getElementById("idInput").value; // Get the input value (table name)
+
+      try {
+        // Construct the URL with the table name
+        let url = "../MiddleWare/getItembyID.php?table_name=" + table + "&id=" + id;
+        console.log("Request URL:", url);
+
+        // Fetch the data from the server
+        let response = await fetch(url); // Await the fetch call
+
+        console.log("Response:", response);
+        // Check if the response is OK (status code 200)
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        // Parse the JSON response
+        let data = await response;
+
+        // Convert the data to a string
+        data = await data.text();
+        let json = JSON.parse(data);
+        console.log(json); // contains all the objects in an array!
+
+        BuildTable(json);
+
+
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        output.innerHTML = "Error fetching data: " + error;
+      }
+    }
+
     function BuildTable(data) {
+      console.log("data passed into BuildTable:", data);
       let outputArea = document.getElementById("tableOutput"); // Get the output element to display results
       outputArea.innerHTML = ''; // Clear previous content
 
+      if (!Array.isArray(data)) { // Check if the data is an array, if not, wrap it in an array
+        data = [data]; // singular objects need to be wrapped in an array for this
+      }
       if (data.length === 0) {
         outputArea.innerHTML = 'No data available.';
         return;
