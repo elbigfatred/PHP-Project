@@ -50,10 +50,10 @@
 
         // Convert the data to a string
         data = await data.text();
-        let json = JSON.parse(data);
+        let json = JSON.parse(data, table);
         console.log(json); // contains all the objects in an array!
 
-        BuildTable(json);
+        BuildTable(json, table);
 
 
       } catch (error) {
@@ -85,7 +85,7 @@
 
         // Convert the data to a string
         data = await data.text();
-        let json = JSON.parse(data);
+        let json = JSON.parse(data, table);
         console.log(json); // contains all the objects in an array!
 
         BuildTable(json);
@@ -97,13 +97,13 @@
       }
     }
 
-    function BuildTable(data) {
+    function BuildTable(data, tableName) { // Accept tableName as an argument
       console.log("data passed into BuildTable:", data);
       let outputArea = document.getElementById("tableOutput"); // Get the output element to display results
       outputArea.innerHTML = ''; // Clear previous content
 
-      if (!Array.isArray(data)) { // Check if the data is an array, if not, wrap it in an array
-        data = [data]; // singular objects need to be wrapped in an array for this
+      if (!Array.isArray(data)) { // Check if data is an array; if not, wrap it in an array
+        data = [data];
       }
       if (data.length === 0) {
         outputArea.innerHTML = 'No data available.';
@@ -111,42 +111,117 @@
       }
 
       // Create the table
-      let table = document.createElement('table');
-      table.setAttribute('border', '1'); // Optional: Add border to table for visibility
+      let table = document.createElement('table'); // Create a table
+      table.setAttribute('border', '1'); // Add border to table for visibility
 
       // Build the table headers using the keys from the first object in the array
       let headers = Object.keys(data[0]); // Get the keys of the first object in the array
-      let thead = document.createElement('thead');
-      let headerRow = document.createElement('tr');
+      let thead = document.createElement('thead'); // Create a table header
+      let headerRow = document.createElement('tr'); // Create a header row
 
+      // Add the headers to the header row
       headers.forEach(header => {
-        let th = document.createElement('th');
+        let th = document.createElement('th'); // Create a table header
         th.textContent = header; // Set the header text
-        headerRow.appendChild(th);
+        headerRow.appendChild(th); // Add the header to the header row
       });
 
+      // Add an extra header for the "Delete" button column
+      let actionHeader = document.createElement('th'); // Create a table header
+      actionHeader.textContent = "Actions"; // Set the header text
+      headerRow.appendChild(actionHeader); // Add the header to the header row
+
+      // Add the header row to the table
       thead.appendChild(headerRow);
       table.appendChild(thead);
 
       // Build the table body by looping through the data array
       let tbody = document.createElement('tbody');
 
+      // Loop through each object in the array
       data.forEach(item => {
-        let row = document.createElement('tr');
+        let row = document.createElement('tr'); // Create a table row
 
+        // Loop through each key (column) in the object
         headers.forEach(header => {
-          let td = document.createElement('td');
+          let td = document.createElement('td'); // Create a table cell
           td.textContent = item[header]; // Add the value for each key (column)
-          row.appendChild(td);
+          row.appendChild(td); // Add the cell to the row
         });
 
+        // Create a cell for the delete button
+        let actionCell = document.createElement('td'); // Create a table cell
+        let deleteButton = document.createElement('button'); // Create a button
+
+        // Dynamically determine the ID key (assumes ID is the first key ending in 'ID')
+        let idKey = headers.find(header => header.toLowerCase().endsWith('id')); // Find the ID key
+        if (idKey) {
+          let idValue = item[idKey];
+          deleteButton.textContent = `Delete item with ID: ${idValue}`;
+
+          // Add event listener to handle deletion with table name and ID
+          deleteButton.addEventListener('click', () => {
+            deleteItem(tableName, idValue); // Pass tableName as an argument to deleteItem
+          });
+        } else {
+          deleteButton.textContent = "Delete"; // Fallback if no ID key is found
+        }
+
+        // Add the button to the cell
+        actionCell.appendChild(deleteButton);
+        row.appendChild(actionCell);
+
+        // Add the row to the table
         tbody.appendChild(row);
       });
 
+      // Add the table body to the table
       table.appendChild(tbody);
 
       // Append the table to the output area
       outputArea.appendChild(table);
+    }
+
+    // Updated deleteItem function to accept both id and tableName
+    async function deleteItem(tableName, id) {
+      console.log(`Attempting to delete item with ID: ${id} from table: ${tableName}`);
+
+      console.log("To delete -- table:", tableName, "id:", id);
+
+      try {
+        // Construct the URL with the table name and ID
+        let url = `../MiddleWare/deleteItemByID.php?table_name=${tableName}&id=${id}`;
+        console.log("Request URL:", url);
+
+        // Send DELETE request to the server
+        let response = await fetch(url, {
+          method: 'DELETE'
+        });
+
+        console.log("Response:", response);
+
+        // Check if the response is OK (status code 200)
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        // Parse the JSON response
+        let data = await response.json();
+
+        // Check for success status in the returned data
+        if (data.status === 'success') {
+          console.log(`Item with ID: ${id} successfully deleted from ${tableName}.`);
+          alert(`Item with ID: ${id} successfully deleted from ${tableName}.`);
+
+        } else {
+          console.error(`Failed to delete item: ${data.message}`);
+          alert(`Failed to delete item: ${data.message}`);
+        }
+
+      } catch (error) {
+        console.error("Error deleting item:", error);
+        alert("Error deleting item: " + error.message);
+      }
     }
   </script>
 </body>

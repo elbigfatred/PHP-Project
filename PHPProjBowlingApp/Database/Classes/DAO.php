@@ -184,4 +184,61 @@ class DAO
 
         return $item; // Return the item or null if not found
     }
+
+    /**
+     * Delete an item from the specified table by its ID.
+     *
+     * @param string $tableName The name of the table in the database.
+     * @param mixed $id The ID of the item to delete (can be an integer or a string).
+     * @return bool True if the deletion was successful, false otherwise.
+     * @throws Exception If the table name or ID column is invalid.
+     */
+    public function deleteItemById($tableName, $id)
+    {
+        // Define a mapping of table names to their respective ID columns
+        $idColumns = [
+            'team' => 'teamID',
+            'player' => 'playerID',
+            'province' => 'provinceID',
+            'tournamentround' => 'roundID',
+            'matchup' => 'matchID',
+            'game' => 'gameID',
+            'gamestatus' => 'gameStatusID',
+            'payout' => 'payoutID'
+        ];
+
+        // Check if the table has a defined ID column
+        if (!isset($idColumns[$tableName])) {
+            throw new Exception("ID column for table $tableName not defined.");
+        }
+
+        // Get the correct ID column name for the table
+        $idColumn = $idColumns[$tableName];
+
+        try {
+            // Prepare the SQL delete statement
+            $sql = "DELETE FROM " . $tableName . " WHERE " . $idColumn . " = :id";
+            error_log("Executing SQL: $sql with ID: $id"); // Log SQL query and ID for debugging
+            $stmt = $this->conn->prepare($sql);
+
+            // Bind the ID parameter based on its type (integer or string)
+            if (is_int($id)) {
+                $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+            } else {
+                $stmt->bindParam(':id', $id, PDO::PARAM_STR);
+            }
+
+            // Execute the delete statement
+            $executeResult = $stmt->execute();
+            $affectedRows = $stmt->rowCount(); // Get the number of affected rows
+            error_log("Delete affected rows: " . $affectedRows); // Log affected rows
+
+            // Return true if at least one row was deleted, otherwise false
+            return $executeResult && $affectedRows > 0;
+        } catch (PDOException $e) {
+            // Log the error
+            error_log("PDO Error: " . $e->getMessage());
+            return false;
+        }
+    }
 }
