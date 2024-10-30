@@ -1,3 +1,11 @@
+/**
+ * AddModalTemplates Class
+ *
+ * A utility class for generating modals that allow users to create new items for various entities
+ * (such as players, teams, and games) in the application. Each static method returns
+ * a Bootstrap modal template for the specified entity. The class also includes a method, submitCreateForm,
+ * to handle the form submission by gathering form data and sending it to the server.
+ */
 class AddModalTemplates {
   // Player modal
   static player() {
@@ -211,46 +219,56 @@ class AddModalTemplates {
       </div>`;
   }
 
-  // Method to submit form data dynamically
+  /**
+   * submitCreateForm(tableName)
+   *
+   * Gathers form data from the modal, constructs a JSON object, and sends it to the server.
+   * Displays success or failure messages based on server response.
+   *
+   * @param {string} tableName - The name of the table (or entity) to which the new item will be added.
+   */
   static async submitCreateForm(tableName) {
     // Get all input elements within the form
     const form = document.getElementById("createForm");
     const inputs = form.querySelectorAll("input");
 
-    // Dynamically collect form data based on the input fields in the form
-    const formData = {};
+    // Dynamically collect form data based on input fields in the form
+    const formData = {}; // Object to store form data as key-value pairs
     inputs.forEach((input) => {
-      formData[input.name] = input.value;
+      formData[input.name] = input.value; // Assign each input's value to formData using input's name as key
     });
 
     try {
-      // Send the data to the server
+      // Send form data to the server with a POST request
       const response = await fetch(`../MiddleWare/addItem.php`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          table_name: tableName,
-          data: formData,
+          table_name: tableName, // Include table name to indicate the target entity
+          data: formData, // Include the collected form data
         }),
       });
 
-      const result = await response.json();
+      const result = await response.json(); // Parse the server response as JSON
 
-      // Check if the item was created successfully
+      // Check if the item was created successfully and display appropriate message
       if (result.status === "success") {
-        alert(`${tableName} created successfully!`);
+        alert(`${tableName} created successfully!`); // Success message
+
+        // Close the modal on successful creation
         const createModalInstance = bootstrap.Modal.getInstance(
           document.getElementById("createModal")
         );
-        createModalInstance.hide(); // Hide the modal on success
+        createModalInstance.hide();
       } else {
-        alert(`Failed to create ${tableName}: ${result.message}`);
+        alert(`Failed to create ${tableName}: ${result.message}`); // Failure message with server feedback
       }
     } catch (error) {
-      console.error(`Error creating ${tableName}:`, error);
-      alert(`Error creating ${tableName}: ` + error.message);
+      // Handle any network or server error
+      console.error(`Error creating ${tableName}:`, error); // Log error details
+      alert(`Error creating ${tableName}: ` + error.message); // Display error message to user
     }
   }
 }
