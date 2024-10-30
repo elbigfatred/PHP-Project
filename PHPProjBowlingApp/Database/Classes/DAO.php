@@ -258,8 +258,8 @@ class DAO
         }
 
         // Extract column names and prepare placeholders for binding
-        $columns = array_keys($data);
-        $placeholders = array_map(fn($col) => ":$col", $columns);
+        $columns = array_keys($data); // Get the column names
+        $placeholders = array_map(fn($col) => ":$col", $columns); // Prepare placeholders
 
         // Construct the SQL statement
         $sql = "INSERT INTO " . $tableName . " (" . implode(", ", $columns) . ") VALUES (" . implode(", ", $placeholders) . ")";

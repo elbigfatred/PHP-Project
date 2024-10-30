@@ -24,6 +24,8 @@
     <button type="button" id="idButton">Get Item By ID</button>
     <button type="button" onclick="openCreateModal('player')" class="btn btn-success mb-2">Create Player</button>
     <button type="button" onclick="openCreateModal('team')" class="btn btn-success mb-2">Create Team</button>
+    <button type="button" onclick="openCreateModal('tournamentround')" class="btn btn-success mb-2">Create Tournament Round</button>
+    <button type="button" onclick="openCreateModal('province')" class="btn btn-success mb-2">Create Province</button>
 
     <div id="modalContent"></div>
   </div>
