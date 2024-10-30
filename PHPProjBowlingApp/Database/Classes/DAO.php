@@ -241,4 +241,45 @@ class DAO
             return false;
         }
     }
+
+    /**
+     * Insert a new item into the specified table with the given associative array of values.
+     *
+     * @param string $tableName The name of the table in the database.
+     * @param array $data An associative array where the keys are the column names and the values are the values to be inserted.
+     * @return bool True if the insertion was successful, false otherwise.
+     * @throws Exception If $data is not a non-empty associative array.
+     */
+    public function addItem($tableName, $data)
+    {
+        // Ensure $data is an array and is not empty
+        if (!is_array($data) || empty($data)) {
+            throw new Exception("Data must be a non-empty associative array.");
+        }
+
+        // Extract column names and prepare placeholders for binding
+        $columns = array_keys($data);
+        $placeholders = array_map(fn($col) => ":$col", $columns);
+
+        // Construct the SQL statement
+        $sql = "INSERT INTO " . $tableName . " (" . implode(", ", $columns) . ") VALUES (" . implode(", ", $placeholders) . ")";
+        error_log("Executing SQL: $sql with data: " . json_encode($data)); // Log SQL query and data
+
+        try {
+            // Prepare the SQL statement
+            $stmt = $this->conn->prepare($sql);
+
+            // Bind each value in $data to its corresponding placeholder
+            foreach ($data as $column => $value) {
+                $stmt->bindValue(":$column", $value);
+            }
+
+            // Execute the statement and return success status
+            return $stmt->execute();
+        } catch (PDOException $e) {
+            // Log the error for debugging
+            error_log("PDO Error: " . $e->getMessage());
+            return false;
+        }
+    }
 }

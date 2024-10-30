@@ -6,6 +6,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Document</title>
   <script src="./Steve's Bowling Game Generator/BowlingUtils.js"></script>
+  <script src="../FrontEnd/ModalTemplates/AddModalTemplates.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 </head>
 
 <body>
@@ -19,6 +22,10 @@
     <input type="text" id="idInput" name="idInput" placeholder="1">
     <button type="button" id="tableButton">Get Full Table</button>
     <button type="button" id="idButton">Get Item By ID</button>
+    <button type="button" onclick="openCreateModal('player')" class="btn btn-success mb-2">Create Player</button>
+    <button type="button" onclick="openCreateModal('team')" class="btn btn-success mb-2">Create Team</button>
+
+    <div id="modalContent"></div>
   </div>
 
   <div id="tableOutput"></div>
@@ -222,6 +229,48 @@
         console.error("Error deleting item:", error);
         alert("Error deleting item: " + error.message);
       }
+    }
+
+    // Function to open and create the modal dynamically
+    function openCreateModal(tableName) {
+      // Create the modal structure
+      // Determine which modal template to use based on the tableName
+      let modalHTML = '';
+      switch (tableName) {
+        case 'player':
+          modalHTML = AddModalTemplates.player();
+          break;
+        case 'team':
+          modalHTML = AddModalTemplates.team();
+          break;
+        case 'province':
+          modalHTML = AddModalTemplates.province();
+          break;
+        case 'tournamentround':
+          modalHTML = AddModalTemplates.tournamentround();
+          break;
+        case 'matchup':
+          modalHTML = AddModalTemplates.matchup();
+          break;
+        case 'game':
+          modalHTML = AddModalTemplates.game();
+          break;
+        case 'gamestatus':
+          modalHTML = AddModalTemplates.gamestatus();
+          break;
+        case 'payout':
+          modalHTML = AddModalTemplates.payout();
+          break;
+        default:
+          console.error(`No modal template found for table: ${tableName}`);
+          return;
+      }
+      // Append the modal HTML to the modalContent div
+      document.getElementById("modalContent").innerHTML = modalHTML;
+
+      // Initialize and show the modal using Bootstrap's JavaScript API
+      const createModal = new bootstrap.Modal(document.getElementById('createModal'));
+      createModal.show();
     }
   </script>
 </body>
