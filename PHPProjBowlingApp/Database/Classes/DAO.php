@@ -106,26 +106,14 @@ class DAO
     {
         $item = null; // Variable to store the result
 
-        // Define a mapping of table names to their respective ID columns
-        $idColumns = [
-            'team' => 'teamID',
-            'player' => 'playerID',
-            'province' => 'provinceID',
-            'tournamentround' => 'roundID',
-            'matchup' => 'matchID',
-            'game' => 'gameID',
-            'gamestatus' => 'gameStatusID',
-            'payout' => 'payoutID'
-        ];
-
         try {
             // Check if the table has a defined ID column
-            if (!isset($idColumns[$tableName])) {
+            if (!isset(DatabaseConstants::$idColumns[$tableName])) {
                 throw new Exception("ID column for table $tableName not defined.");
             }
 
             // Get the correct ID column name for the table
-            $idColumn = $idColumns[$tableName];
+            $idColumn = DatabaseConstants::$idColumns[$tableName];
 
             // SQL query to fetch the item with the specific ID
             $sql = "SELECT * FROM " . $tableName . " WHERE " . $idColumn . " = :id LIMIT 1";
@@ -278,6 +266,56 @@ class DAO
             // Log PDO error message for debugging if execution fails
             error_log("PDO Error: " . $e->getMessage());
             return false; // Return false to indicate failure
+        }
+    }
+    /**
+     * Update a specified item in the specified table with the given associative array of values.
+     *
+     * @param string $tableName The name of the table in the database.
+     * @param array $data An associative array where the keys are the column names and the values are the updated values of the record.
+     * @return bool True if the update was successful, false otherwise.
+     * @throws Exception If $data is not a non-empty associative array or if the specied table contains no records with the specified ID.
+     */
+    public function updateItem($tableName, $data)
+    {
+        // Validate input: Ensure $data is a non-empty associative array
+        if (!is_array($data) || empty($data)) {
+            throw new Exception("Data must be a non-empty associative array."); // Throw exception if $data is invalid
+        }
+
+        // Extract column names from $data keys to construct the SQL statement
+        $columns = array_keys($data); // Columns will hold an array of column names
+        $placeholders = array_map(fn($col) => ":$col", $columns); // Map each column name to a named placeholder (e.g., ":column_name")
+
+
+        $id = $data[DatabaseConstants::$idColumns[$tableName]];
+        if (is_null($this->getItemById($tableName, $id))) {
+            throw new Exception("404, item not found."); // Throw exception if specied table contains no records with the specified ID.
+        }
+        $args = [];
+        // Construct the SQL 'INSERT' statement using the table name, columns, and placeholders
+        for ($i = 0; $i < count($columns); $i++) {
+            if ($columns[$i] !== DatabaseConstants::$idColumns[$tableName]) {
+                array_push($args, $columns[$i] . " = " . $placeholders[$i]);
+            }
+        }
+        $sql = "Update " . $tableName . " set " . implode(", ", $args) . " where " . DatabaseConstants::$idColumns[$tableName] . " = :" . DatabaseConstants::$idColumns[$tableName];
+        error_log("Executing SQL: $sql with data: " . json_encode($data)); // Log the constructed SQL query and data for debugging
+
+        try {
+            // Prepare the SQL statement
+            $stmt = $this->conn->prepare($sql); // Prepares the query with placeholders for later binding
+
+            foreach ($data as $column => $value) {
+                $stmt->bindValue(":$column", $value); // Bind each column's value to its placeholder
+            }
+
+            return $stmt->execute(); // Returns true if successful, false otherwise
+        } catch (PDOException $e) {
+            // Log PDO error message for debugging if execution fails
+            // return (json_encode($data));
+            return (json_encode($sql));
+            return ("PDO Error: " . $e->getMessage());
         }
     }
 }

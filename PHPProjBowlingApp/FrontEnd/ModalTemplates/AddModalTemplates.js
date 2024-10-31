@@ -240,7 +240,7 @@ class AddModalTemplates {
 
     try {
       // Send form data to the server with a POST request
-      const response = await fetch(`../MiddleWare/addItem.php`, {
+      const response = await fetch(`../MiddleWare/updateItem.php`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

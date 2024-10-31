@@ -26,6 +26,7 @@
     <button type="button" onclick="openCreateModal('team')" class="btn btn-success mb-2">Create Team</button>
     <button type="button" onclick="openCreateModal('tournamentround')" class="btn btn-success mb-2">Create Tournament Round</button>
     <button type="button" onclick="openCreateModal('province')" class="btn btn-success mb-2">Create Province</button>
+    <button type="button" id="updateButton" class="btn btn-success mb-2">update record</button>
 
     <div id="modalContent"></div>
   </div>
@@ -35,6 +36,7 @@
   <script>
     document.getElementById("tableButton").addEventListener("click", getTable);
     document.getElementById("idButton").addEventListener("click", getItemById);
+    document.getElementById("updateButton").addEventListener("click", updateRecord);
 
 
     async function getTable() {
@@ -273,6 +275,46 @@
       // Initialize and show the modal using Bootstrap's JavaScript API
       const createModal = new bootstrap.Modal(document.getElementById('createModal'));
       createModal.show();
+    }
+
+    async function updateRecord() {
+      let table = document.getElementById("tableInput").value.toLowerCase(); // Get the input value (table name)
+      console.log(table);
+      openCreateModal(table);
+      let id = document.getElementById("idInput").value; // Get the input value (table name)
+
+
+      try {
+        // Construct the URL with the table name
+        let url = "../MiddleWare/getItembyID.php?table_name=" + table + "&id=" + id;
+        console.log("Request URL:", url);
+
+        // Fetch the data from the server
+        let response = await fetch(url); // Await the fetch call
+
+        console.log("Response:", response);
+        // Check if the response is OK (status code 200)
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        // Parse the JSON response
+        let data = await response;
+
+        // Convert the data to a string
+        data = await data.text();
+        let json = JSON.parse(data, table);
+        console.log(json); // contains all the objects in an array!
+        let modal = document.getElementById("modalContent");
+        let inputs = modal.querySelectorAll("input");
+        inputs.forEach(input => {
+          input.value = json[input.id];
+        });
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        output.innerHTML = "Error fetching data: " + error;
+      }
+
     }
   </script>
 </body>
