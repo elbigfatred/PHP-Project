@@ -26,6 +26,7 @@
     <button type="button" onclick="openCreateModal('team')" class="btn btn-success mb-2">Create Team</button>
     <button type="button" onclick="openCreateModal('tournamentround')" class="btn btn-success mb-2">Create Tournament Round</button>
     <button type="button" onclick="openCreateModal('province')" class="btn btn-success mb-2">Create Province</button>
+    <button type="button" onclick="createTeams()" class="btn btn-success mb-2">View Teams</button>
     <button type="button" id="updateButton" class="btn btn-success mb-2">update record</button>
 
     <div id="modalContent"></div>
@@ -38,6 +39,200 @@
     document.getElementById("idButton").addEventListener("click", getItemById);
     document.getElementById("updateButton").addEventListener("click", updateRecord);
 
+
+    async function createTeams() {
+      try {
+        // Construct the URL with the table name
+        let url = "../MiddleWare/getAllItems.php?table_name=team";
+        console.log("Request URL:", url);
+
+        // Fetch the data from the server
+        let response = await fetch(url);
+
+        console.log("Response:", response);
+        // Check if the response is OK (status code 200)
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        // Parse the JSON response
+        let data = await response.text();
+        let json = JSON.parse(data);
+        console.log(json); // contains all the objects in an array!
+
+        BuildTeamTable(json);
+
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        output.innerHTML = "Error fetching data: " + error;
+      }
+    }
+
+
+    function BuildTeamTable(data) {
+      console.log("data passed into BuildTeamTable:", data);
+      let outputArea = document.getElementById("tableOutput"); // Get the output element to display results
+      outputArea.innerHTML = ''; // Clear previous content
+
+      if (!Array.isArray(data)) {
+        data = [data]; // Wrap data in an array if it's not already one
+      }
+
+      if (data.length === 0) {
+        outputArea.innerHTML = 'No data available.';
+        return;
+      }
+
+      // Create the table
+      let table = document.createElement('table');
+      table.setAttribute('border', '1');
+
+      // Build the table headers using the keys from the first object in the array
+      let headers = Object.keys(data[0]);
+      let thead = document.createElement('thead');
+      let headerRow = document.createElement('tr');
+
+      // Add the headers to the header row
+      headers.forEach(header => {
+        let th = document.createElement('th');
+        th.textContent = header;
+        headerRow.appendChild(th);
+      });
+
+      // Add an extra header for the "Actions" column
+      let actionHeader = document.createElement('th');
+      actionHeader.textContent = "Actions";
+      headerRow.appendChild(actionHeader);
+
+      thead.appendChild(headerRow);
+      table.appendChild(thead);
+
+      // Build the table body by looping through the data array
+      let tbody = document.createElement('tbody');
+
+      data.forEach(item => {
+        let row = document.createElement('tr');
+
+        // Loop through each key (column) in the object
+        headers.forEach(header => {
+          let td = document.createElement('td');
+          td.textContent = item[header];
+          row.appendChild(td);
+        });
+
+        // Create a cell for the "View Players" button
+        let actionCell = document.createElement('td');
+        let viewPlayersButton = document.createElement('button');
+        viewPlayersButton.textContent = "View Players";
+
+        // Dynamically determine the ID key (assumes ID is the first key ending in 'ID')
+        let idKey = headers.find(header => header.toLowerCase().endsWith('id'));
+        if (idKey) {
+          let idValue = item[idKey];
+
+          // Add event listener to handle viewing players for the team with the given ID
+          viewPlayersButton.addEventListener('click', () => {
+            obtainPlayers(idValue); // Pass the team ID to the viewPlayers function
+          });
+        }
+
+        // Add the button to the cell
+        actionCell.appendChild(viewPlayersButton);
+        row.appendChild(actionCell);
+
+        // Add the row to the table
+        tbody.appendChild(row);
+      });
+
+      table.appendChild(tbody);
+      outputArea.appendChild(table);
+    }
+
+    async function obtainPlayers(teamID) {
+      console.log(`Fetching players for team ID: ${teamID}`);
+
+      try {
+        // Fetch all players from the getAllItems.php endpoint
+        let url = "../MiddleWare/getAllItems.php?table_name=player";
+        let response = await fetch(url);
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        // Parse the JSON response
+        let data = await response.json();
+        console.log("All players fetched:", data);
+
+        // Filter players by teamID
+        const playersForTeam = data.filter(player => player.teamID === teamID);
+        console.log(`Players for team ${teamID}:`, playersForTeam);
+
+        // Build and show the modal with the filtered players
+        displayPlayersModal(playersForTeam, teamID);
+
+      } catch (error) {
+        console.error("Error fetching players:", error);
+        alert("Error fetching players: " + error.message);
+      }
+    }
+
+    function displayPlayersModal(players, teamID) {
+      // Check if there are players to display
+      if (players.length === 0) {
+        alert(`No players found for team ID: ${teamID}`);
+        return;
+      }
+
+      // Build the modal HTML
+      const modalHTML = `
+    <div class="modal fade" id="playersModal" tabindex="-1" aria-labelledby="playersModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="playersModalLabel">Players for Team ID: ${teamID}</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <table class="table table-bordered">
+              <thead>
+                <tr>
+                  <th>Player ID</th>
+                  <th>Team ID</th>
+                  <th>First Name</th>
+                  <th>Last Name</th>
+                  <th>Hometown</th>
+                  <th>Province ID</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${players.map(player => `
+                  <tr>
+                    <td>${player.playerID}</td>
+                    <td>${player.teamID}</td>
+                    <td>${player.firstName}</td>
+                    <td>${player.lastName}</td>
+                    <td>${player.hometown}</td>
+                    <td>${player.provinceID}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>`;
+
+      // Insert the modal HTML into the modalContent div
+      document.getElementById("modalContent").innerHTML = modalHTML;
+
+      // Show the modal using Bootstrap's JavaScript API
+      const playersModal = new bootstrap.Modal(document.getElementById('playersModal'));
+      playersModal.show();
+    }
 
     async function getTable() {
       let table = document.getElementById("tableInput").value; // Get the input value (table name)
