@@ -27,7 +27,7 @@ try {
 
     // Fetch the watch item by model number, passed via the URL query string (GET request)
     $tableName = $_GET["table_name"];
-    $results = $dao->getAllItems($tableName);
+    $results = $dao->getAllbyTableName($tableName);
 
     // Convert the watchItem object into JSON format
     $results = json_encode($results);

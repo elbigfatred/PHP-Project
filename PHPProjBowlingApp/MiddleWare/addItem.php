@@ -17,8 +17,12 @@ try {
     }
 
     // Retrieve and decode the JSON payload
-    $input = json_decode(file_get_contents('php://input'), true);
-
+    $body = file_get_contents('php://input');
+    try {
+        $input = json_decode($body, true);
+    } catch (Exception) {
+        echo $body;
+    }
     // Validate required parameters: table_name and data
     if (!isset($input["table_name"]) || !isset($input["data"])) {
         throw new Exception("Both table_name and data fields are required.");
@@ -37,10 +41,7 @@ try {
 
     // Return a JSON response based on success or failure
     if ($success) {
-        echo json_encode([
-            "status" => "success",
-            "message" => "Item successfully added to $tableName."
-        ]);
+        echo json_encode($success);
     } else {
         echo json_encode([
             "status" => "error",

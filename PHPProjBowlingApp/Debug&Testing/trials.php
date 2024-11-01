@@ -15,6 +15,7 @@
   <h1>Testing Page</h1>
 
   <div>
+    <a href="AveryTests.php">Avery</a>
     <h2>Build a table from table name</h2>
     <label for="tableInput">Table Name: </label>
     <input type="text" id="tableInput" name="tableInput">
@@ -44,7 +45,7 @@
 
       try {
         // Construct the URL with the table name
-        let url = "../UseCases/gst01.php?";
+        let url = "../MiddleWare/getAllItems.php?table_name=" + table;
         console.log("Request URL:", url);
 
         // Fetch the data from the server

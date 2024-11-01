@@ -28,7 +28,7 @@ class DAO
      * @param string $tableName The name of the table in the database.
      * @return array An array of objects where each object represents a row in the table.
      */
-    private function getAllItems($tableName)
+    private function getAll($tableName)
     {
         $results = []; // Initialize an empty array to store the fetched items
 
@@ -102,7 +102,7 @@ class DAO
      * @param mixed $id The ID of the row to retrieve (integer or string).
      * @return object|null An object representing the row, or null if the item doesn't exist.
      */
-    private function getItemById($tableName, $id)
+    private function getById($tableName, $id)
     {
         $item = null; // Variable to store the result
 
@@ -174,7 +174,7 @@ class DAO
 
         return $item; // Return the item or null if not found
     }
-    private function getItemByField($tableName, $field, $Value)
+    private function getByField($tableName, $field, $Value)
     {
         $item = null; // Variable to store the result
 
@@ -252,7 +252,7 @@ class DAO
      * @return bool True if the deletion was successful, false otherwise.
      * @throws Exception If the table name or ID column is invalid.
      */
-    private function deleteItemById($tableName, $id)
+    private function deleteById($tableName, $id)
     {
         // Define a mapping of table names to their respective ID columns, using a constant from DatabaseConstants
         $idColumns = DatabaseConstants::$idColumns;
@@ -305,7 +305,7 @@ class DAO
      * @return bool True if the insertion was successful, false otherwise.
      * @throws Exception If $data is not a non-empty associative array.
      */
-    private function addItem($tableName, $data)
+    private function add($tableName, $data)
     {
         // Validate input: Ensure $data is a non-empty associative array
         if (!is_array($data) || empty($data)) {
@@ -345,7 +345,7 @@ class DAO
      * @return bool True if the update was successful, false otherwise.
      * @throws Exception If $data is not a non-empty associative array or if the specied table contains no records with the specified ID.
      */
-    private function updateItem($tableName, $data)
+    private function update($tableName, $data)
     {
         // Validate input: Ensure $data is a non-empty associative array
         if (!is_array($data) || empty($data)) {
@@ -358,7 +358,7 @@ class DAO
 
 
         $id = $data[DatabaseConstants::$idColumns[$tableName]];
-        if (is_null($this->getItemById($tableName, $id))) {
+        if (is_null($this->getById($tableName, $id))) {
             throw new Exception("404, item not found."); // Throw exception if specied table contains no records with the specified ID.
         }
         $args = [];
@@ -392,7 +392,7 @@ class DAO
         try {
 
             // Fetch the watch item by model number, passed via the URL query string (GET request)
-            $results = $this->getAllItems($tableName);
+            $results = $this->getAll($tableName);
 
             return $results;
         } catch (Exception $e) {
@@ -400,12 +400,56 @@ class DAO
             return "ERROR " . $e->getMessage();
         }
     }
-    public function getItemFromTableByID($tableName, $field, $value)
+    public function addItem($tableName, $data)
+    {
+        try {
+            $success = $this->add($tableName, $data);
+
+            // Return a JSON response based on success or failure
+            return $success;
+        } catch (Exception $e) {
+            return $e;
+        }
+    }
+    public function updateItem($tableName, $data)
+    {
+        try {
+
+            // Fetch the watch item by model number, passed via the URL query string (GET request)
+            $results = $this->update($tableName, $data);
+
+            return $results;
+        } catch (Exception $e) {
+            // If an error occurs (e.g., model number not provided or database failure), output an error message
+            return "ERROR " . $e->getMessage();
+        }
+    }
+    public function getItemById($tableName, $id)
+    {
+        try {
+
+            // Fetch the watch item by model number, passed via the URL query string (GET request)
+            $result = $this->getById($tableName, $id);
+            if ($result === null) {
+                return json_encode([
+                    "status" => "error",
+                    "message" => "No results found."
+                ]);
+            } else {
+                // Output the JSON-encoded item data
+                return $result;
+            }
+        } catch (Exception $e) {
+            // If an error occurs (e.g., model number not provided or database failure), output an error message
+            return "ERROR " . $e->getMessage();
+        }
+    }
+    public function getItemsFromTableByField($tableName, $field, $value)
     {
         try {
 
             // Retrieve the item from the specified table and ID
-            $result = $this->getItemByField($tableName, $field, $value);
+            $result = $this->getByField($tableName, $field, $value);
 
             // Check if the result is null, indicating no item found
             if ($result === null) {
@@ -423,6 +467,26 @@ class DAO
                 "status" => "error",
                 "message" => $e->getMessage()
             ]);
+        }
+    }
+    public function deleteItemById($tableName, $id)
+    {
+        try {
+
+            // Fetch the watch item by model number, passed via the URL query string (GET request)
+            $result = $this->deleteById($tableName, $id);
+            if ($result === null) {
+                return json_encode([
+                    "status" => "error",
+                    "message" => "No results found."
+                ]);
+            } else {
+                // Output the JSON-encoded item data
+                return $result;
+            }
+        } catch (Exception $e) {
+            // If an error occurs (e.g., model number not provided or database failure), output an error message
+            return "ERROR " . $e->getMessage();
         }
     }
 }

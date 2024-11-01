@@ -17,7 +17,7 @@ foreach ($teams as $team) {
     // chose fields to keep
     $t["teamName"] = $team->getTeamName();
     // use dba to get all records from the player table associated with the current team
-    $players = $dao->getItemFromTableByID("player", "teamID", $team->getTeamID());
+    $players = $dao->getItemsFromTableByField("player", "teamID", $team->getTeamID());
     // create a player list in our team object
     $t["players"] = [];
     // loop through all players
@@ -29,7 +29,7 @@ foreach ($teams as $team) {
         array_push($t["players"], $p);
     }
     // use dba to get all records from the matchup table associated with the current team
-    $matchups = $dao->getItemFromTableByID("matchup", "teamID", $team->getTeamID());
+    $matchups = $dao->getItemsFromTableByField("matchup", "teamID", $team->getTeamID());
     // create a matchup list in our team object
     $t["matchup"] = [];
     // loop through all matchups

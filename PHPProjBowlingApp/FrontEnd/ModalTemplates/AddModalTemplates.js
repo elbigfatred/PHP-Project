@@ -240,7 +240,7 @@ class AddModalTemplates {
 
     try {
       // Send form data to the server with a POST request
-      const response = await fetch(`../MiddleWare/updateItem.php`, {
+      const response = await fetch(`../MiddleWare/addItem.php`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -251,10 +251,10 @@ class AddModalTemplates {
         }),
       });
 
-      const result = await response.json(); // Parse the server response as JSON
+      const result = await response; // Parse the server response as JSON
 
       // Check if the item was created successfully and display appropriate message
-      if (result.status === "success") {
+      if (result.status === 200) {
         alert(`${tableName} created successfully!`); // Success message
 
         // Close the modal on successful creation
