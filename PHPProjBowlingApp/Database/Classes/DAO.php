@@ -28,7 +28,7 @@ class DAO
      * @param string $tableName The name of the table in the database.
      * @return array An array of objects where each object represents a row in the table.
      */
-    public function getAllItems($tableName)
+    private function getAllItems($tableName)
     {
         $results = []; // Initialize an empty array to store the fetched items
 
@@ -102,7 +102,7 @@ class DAO
      * @param mixed $id The ID of the row to retrieve (integer or string).
      * @return object|null An object representing the row, or null if the item doesn't exist.
      */
-    public function getItemById($tableName, $id)
+    private function getItemById($tableName, $id)
     {
         $item = null; // Variable to store the result
 
@@ -174,6 +174,75 @@ class DAO
 
         return $item; // Return the item or null if not found
     }
+    private function getItemByField($tableName, $field, $Value)
+    {
+        $item = null; // Variable to store the result
+
+        try {
+            // Check if the table has a defined ID column
+            if (!isset(DatabaseConstants::$idColumns[$tableName])) {
+                throw new Exception("ID column for table $tableName not defined.");
+            }
+
+            // Get the correct ID column name for the table
+            $idColumn = DatabaseConstants::$idColumns[$tableName];
+
+            // SQL query to fetch the item with the specific ID
+            $sql = "SELECT * FROM " . $tableName . " WHERE " . $field . " = " . $Value;
+            $stmt = $this->conn->prepare($sql);
+
+
+            // Execute the statement
+            $stmt->execute();
+
+            // Fetch the result
+            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $items = [];
+            // If a row is found, proceed to create an object
+            foreach ($rows as $row) {
+                if ($row) {
+                    // Convert the table name to lowercase to match the class name
+                    $className = strtolower($tableName);
+
+                    // Check if the class exists
+                    if (!class_exists($className)) {
+                        throw new Exception("Class $className does not exist.");
+                    }
+
+                    // Reflect the class and get its constructor parameters
+                    $reflector = new ReflectionClass($className);
+                    $constructorParams = $reflector->getConstructor()->getParameters();
+
+                    // Extract values from the row to match the constructor parameters
+                    $constructorArgs = [];
+                    foreach ($constructorParams as $param) {
+                        $paramName = $param->getName();
+                        $constructorArgs[] = $row[$paramName] ?? null;
+                    }
+
+                    // Create an instance of the class with the constructor arguments
+                    $item = $reflector->newInstanceArgs($constructorArgs);
+                    array_push($items, $item);
+                }
+            }
+        } catch (PDOException $e) {
+            // Log the error (optional)
+            error_log("PDO Error: " . $e->getMessage());
+        } catch (ReflectionException $e) {
+            // Log reflection errors (optional)
+            error_log("Reflection Error: " . $e->getMessage());
+        } catch (Exception $e) {
+            // Log any other errors (optional)
+            error_log("Error: " . $e->getMessage());
+        } finally {
+            // Close the cursor if the statement is not null
+            if (!is_null($stmt)) {
+                $stmt->closeCursor();
+            }
+        }
+
+        return $items; // Return the item or null if not found
+    }
 
     /**
      * Delete an item from the specified table by its ID.
@@ -183,7 +252,7 @@ class DAO
      * @return bool True if the deletion was successful, false otherwise.
      * @throws Exception If the table name or ID column is invalid.
      */
-    public function deleteItemById($tableName, $id)
+    private function deleteItemById($tableName, $id)
     {
         // Define a mapping of table names to their respective ID columns, using a constant from DatabaseConstants
         $idColumns = DatabaseConstants::$idColumns;
@@ -236,7 +305,7 @@ class DAO
      * @return bool True if the insertion was successful, false otherwise.
      * @throws Exception If $data is not a non-empty associative array.
      */
-    public function addItem($tableName, $data)
+    private function addItem($tableName, $data)
     {
         // Validate input: Ensure $data is a non-empty associative array
         if (!is_array($data) || empty($data)) {
@@ -276,7 +345,7 @@ class DAO
      * @return bool True if the update was successful, false otherwise.
      * @throws Exception If $data is not a non-empty associative array or if the specied table contains no records with the specified ID.
      */
-    public function updateItem($tableName, $data)
+    private function updateItem($tableName, $data)
     {
         // Validate input: Ensure $data is a non-empty associative array
         if (!is_array($data) || empty($data)) {
@@ -316,6 +385,44 @@ class DAO
             // return (json_encode($data));
             return (json_encode($sql));
             return ("PDO Error: " . $e->getMessage());
+        }
+    }
+    public function getAllbyTableName($tableName)
+    {
+        try {
+
+            // Fetch the watch item by model number, passed via the URL query string (GET request)
+            $results = $this->getAllItems($tableName);
+
+            return $results;
+        } catch (Exception $e) {
+            // If an error occurs (e.g., model number not provided or database failure), output an error message
+            return "ERROR " . $e->getMessage();
+        }
+    }
+    public function getItemFromTableByID($tableName, $field, $value)
+    {
+        try {
+
+            // Retrieve the item from the specified table and ID
+            $result = $this->getItemByField($tableName, $field, $value);
+
+            // Check if the result is null, indicating no item found
+            if ($result === null) {
+                return json_encode([
+                    "status" => "error",
+                    "message" => "No results found."
+                ]);
+            } else {
+                // Output the JSON-encoded item data
+                return $result;
+            }
+        } catch (Exception $e) {
+            // Output JSON-formatted error message
+            return json_encode([
+                "status" => "error",
+                "message" => $e->getMessage()
+            ]);
         }
     }
 }

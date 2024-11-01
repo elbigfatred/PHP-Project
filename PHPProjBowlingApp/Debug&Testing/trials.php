@@ -44,7 +44,7 @@
 
       try {
         // Construct the URL with the table name
-        let url = "../MiddleWare/getAllItems.php?table_name=" + table;
+        let url = "../UseCases/gst01.php?";
         console.log("Request URL:", url);
 
         // Fetch the data from the server
@@ -69,7 +69,7 @@
 
       } catch (error) {
         console.error("Error fetching data:", error);
-        output.innerHTML = "Error fetching data: " + error;
+        //output.innerHTML = "Error fetching data: " + error;
       }
     }
 
