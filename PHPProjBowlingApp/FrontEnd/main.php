@@ -32,7 +32,9 @@
 <body>
   <!-- Navigation Bar -->
   <!-- button to go to testing page -->
-  <a href="../Debug&Testing/Steve's Bowling Game Generator/BasicGameGenerator.html">Testing Page</a>
+  <a href="../Debug&Testing/Steve's Bowling Game Generator/BasicGameGenerator.html">Testing Pages</a>
+  <br>
+  <a href="./landing.php">App Landing Page</a>
   <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
     <a class="navbar-brand" href="#">Tournament Dashboard</a>
     <button
