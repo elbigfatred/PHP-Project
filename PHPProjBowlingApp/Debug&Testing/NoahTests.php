@@ -202,7 +202,7 @@
 
                 let data = await response.json();
                 //refresh the UI
-                fetchGames(); 
+                fetchGames();
 
                 if (data.success) {
                     // Insert modal HTML using the correct case
@@ -214,6 +214,14 @@
                     // Initialize the Bootstrap modal
                     let modal = new bootstrap.Modal(modalElement);
 
+                    // Add event listener for modal close
+                    //needs revision
+                    modalElement.addEventListener('hidden.bs.modal', function() {
+                        modalElement.remove(); 
+                        event.target.disabled = false; 
+                        fetchGames(); 
+                    });
+
                     // Show the modal
                     modal.show();
                 }
@@ -221,7 +229,8 @@
                 console.error('Error:', e);
             }
         }
-        
+
+
         // Load games when page loads
         document.addEventListener('DOMContentLoaded', fetchGames);
     </script>
