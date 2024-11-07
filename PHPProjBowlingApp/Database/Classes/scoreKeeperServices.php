@@ -80,7 +80,7 @@
 
     }
 
-    //Might need this to flip game back to available if something goes wrong
+    //Might need this to flip game back to available if something goes wrong with modal
     public function returnGameToAvailable($gameId) {
         $curGame = $this->dao->getItemById("game", $gameId);
         if($curGame->getGameStatusID() === self::STATUS_INPROGRESS && $curGame->getScore() === null && $curGame->getBalls() === null){
