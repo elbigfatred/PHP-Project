@@ -15,9 +15,6 @@
         $this->dao = $dao;
     }
 
-    public function getAllRounds() {
-        return $this->dao->getAllbyTableName('TournamentRound');
-    }
 
     public function getGamesWithTeamInfo($roundId) {
         // Get all matchups for the round
@@ -53,6 +50,7 @@
         return $gamesWithTeamInfo;
     }
 
+    //Not needed, made before getGamesWithTeamInfo
     public function getGamesByRound($roundId){
         $matchups = $this->dao->getItemsFromTableByField('matchup', 'roundId', "'" . $roundId . "'");
 
@@ -66,21 +64,51 @@
         return $games;
     }
 
+    //update the status to inprogress if game is available
     public function startGame($gameId) {
-        $data = [
-            'gameId' => $gameId,
-            'gameStatusId' => self::STATUS_INPROGRESS
-        ];
-        return $this->dao->updateItem('Game', $data);
+        $curGame = $this->dao->getItemById("game", $gameId);
+        //Make sure current game is available
+        if($curGame->getGameStatusID() === self::STATUS_AVAILABLE){
+            $data = [
+                'gameID' => $gameId,
+                'gameStatusID' => self::STATUS_INPROGRESS
+            ];
+            return $this->dao->updateItem('game', $data);
+        }
+
+        return false;
+
     }
 
+    //Might need this to flip game back to available if something goes wrong
+    public function returnGameToAvailable($gameId) {
+        $curGame = $this->dao->getItemById("game", $gameId);
+        if($curGame->getGameStatusID() === self::STATUS_INPROGRESS && $curGame->getScore() === null && $curGame->getBalls() === null){
+            $data = [
+                'gameID' => $gameId,
+                'gameStatusID' => self::STATUS_INPROGRESS
+            ];
+            return $this->dao->updateItem('game', $data);
+        }
+
+        return false;
+    }
+
+    //submit required info to the system when scoring is finished
     public function submitGameResults($gameId, $balls, $score) {
        
+        $curGame = $this->dao->getItemById("game", $gameId);
+        //if no game found, or if the game isn't in progress return false
+        if(!$curGame || $curGame->getGameStatusID() !== self::STATUS_INPROGRESS){
+            return false;
+        }
+
+        //data to submit to the system
         $data = [
-            'gameId' => $gameId,
+            'gameID' => $gameId,
             'balls' => $balls,
             'score' => $score,
-            'gameStatusId' => self::STATUS_COMPLETE
+            'gameStatusID' => self::STATUS_COMPLETE
         ];
 
         $success = $this->dao->updateItem('Game', $data);
