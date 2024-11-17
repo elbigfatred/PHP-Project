@@ -1,10 +1,8 @@
-#URL mapping for ScoreKeeper
-#Note: "NC" means case insensitive
 RewriteEngine on
 
 # Get games by round
-RewriteRule ^scorekeeper/games$ api/scorekeeper.php [NC]
+RewriteRule ^scorekeeper/games$ MiddleWare/ScoreKeeper.php [NC]
 
 # Game operations (start, submit, reset)
-RewriteRule ^scorekeeper/games/([0-9]+)$ MiddleWare/scorekeeper.php?gameId=$1 [NC]
-RewriteRule ^scorekeeper/games/([0-9]+)/([a-zA-Z]+)$ Middle /scorekeeper.php?gameId=$1&action=$2 [NC]
+RewriteRule ^scorekeeper/games/([0-9]+)$ MiddleWare/ScoreKeeper.php?gameId=$1 [NC]
+RewriteRule ^scorekeeper/games/([0-9]+)/([a-zA-Z]+)$ MiddleWare/ScoreKeeper.php?gameId=$1&action=$2 [NC]

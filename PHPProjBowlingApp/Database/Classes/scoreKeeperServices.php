@@ -86,7 +86,7 @@
         if($curGame->getGameStatusID() === self::STATUS_INPROGRESS && $curGame->getScore() === null && $curGame->getBalls() === null){
             $data = [
                 'gameID' => $gameId,
-                'gameStatusID' => self::STATUS_INPROGRESS
+                'gameStatusID' => self::STATUS_AVAILABLE
             ];
             return $this->dao->updateItem('game', $data);
         }
