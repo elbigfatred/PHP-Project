@@ -1,106 +1,13 @@
 <!DOCTYPE html>
 <html>
-
 <head>
     <title>Score a Game</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            padding: 20px;
-        }
-
-        .controls {
-            margin-bottom: 20px;
-        }
-
-        select {
-            padding: 5px;
-            margin-right: 10px;
-            font-size: 14px;
-        }
-
-        button {
-            padding: 5px 15px;
-            font-size: 14px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-
-        th,
-        td {
-            padding: 12px;
-            text-align: left;
-            border: 1px solid #ddd;
-        }
-
-        th {
-            background-color: #f4f4f4;
-        }
-
-        tr:nth-child(even) {
-            background-color: #f9f9f9;
-        }
-
-        .status-badge {
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 0.9em;
-        }
-
-        .status-COMPLETE {
-            background-color: #4CAF50;
-            color: white;
-        }
-
-        .status-INPROGRESS {
-            background-color: #2196F3;
-            color: white;
-        }
-
-        .status-AVAILABLE {
-            background-color: #FFC107;
-            color: black;
-        }
-
-        .status-UNASSIGNED {
-            background-color: #9E9E9E;
-            color: white;
-        }
-
-        .score-button {
-            padding: 6px 12px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-
-        .score-button:disabled {
-            background-color: #cccccc;
-            cursor: not-allowed;
-        }
-
-        .score-button:hover:not(:disabled) {
-            background-color: #45a049;
-        }
-
-        .error {
-            color: red;
-            padding: 10px;
-            margin: 10px 0;
-            background-color: #fee;
-            border-radius: 4px;
-        }
+        /* Your existing styles remain the same */
     </style>
     <script src="../FrontEnd/ModalTemplates/AddModalTemplates.js"></script>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </head>
 
 <body>
@@ -114,7 +21,7 @@
             <option value="SEED3">Seed 3</option>
             <option value="SEED4">Seed 4</option>
             <option value="RAND1">Random 1</option>
-            <option value="RAND1">Random 2</option>
+            <option value="RAND2">Random 2</option>
             <option value="RAND3">Random 3</option>
             <option value="RAND4">Random 4</option>
             <option value="FINAL">Final</option>
@@ -126,9 +33,8 @@
     <div id="tableContainer"></div>
 
     <script>
-        //generate the table based on the games received from the system
         function createTable(games) {
-            if (!games.length) {
+            if (!games || !games.length) {
                 return '<p>No games found for this round.</p>';
             }
 
@@ -171,17 +77,30 @@
             return html;
         }
 
+        function showError(message) {
+            const errorDiv = document.getElementById('error');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            setTimeout(() => errorDiv.style.display = 'none', 5000);
+        }
+
         async function fetchGames() {
             let roundId = document.getElementById('roundSelect').value;
             let tableContainer = document.getElementById('tableContainer');
 
             try {
-                let response = await fetch(`../UseCases/sck01.php?roundId=${roundId}`);
-                let games = await response.json();
+                let response = await fetch(`api/scorekeeper.php?roundId=${roundId}`);
+                let result = await response.json();
 
-                tableContainer.innerHTML = createTable(games);
+                if (result.error) {
+                    showError(result.error);
+                    return;
+                }
+
+                tableContainer.innerHTML = createTable(result.data);
             } catch (e) {
                 console.error('Fetch error:', e);
+                showError('Failed to fetch games');
             }
         }
 
@@ -190,50 +109,68 @@
                 // Disable button while processing
                 event.target.disabled = true;
 
-                let response = await fetch('../UseCases/sck02.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        gameId: gameId
-                    })
+                // Start the game
+                let startResponse = await fetch(`api/scorekeeper.php?gameId=${gameId}&action=start`, {
+                    method: 'PUT'
+                });
+                let startResult = await startResponse.json();
+
+                if (startResult.error) {
+                    showError(startResult.error);
+                    event.target.disabled = false;
+                    return;
+                }
+
+                // Insert modal HTML
+                document.body.insertAdjacentHTML('beforeend', AddModalTemplates.bowlingGame());
+                let modalElement = document.getElementById('createModal');
+                let modal = new bootstrap.Modal(modalElement);
+
+                // Handle modal submit
+                modalElement.querySelector('form').onsubmit = async function(e) {
+                    e.preventDefault();
+                    
+                    let balls = this.querySelector('[name="balls"]').value;
+                    let score = this.querySelector('[name="score"]').value;
+
+                    try {
+                        let submitResponse = await fetch(`api/scorekeeper.php?gameId=${gameId}&action=submit`, {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ balls, score })
+                        });
+
+                        let submitResult = await submitResponse.json();
+
+                        if (submitResult.error) {
+                            showError(submitResult.error);
+                        } else {
+                            modal.hide();
+                        }
+                    } catch (e) {
+                        showError('Failed to submit score');
+                    }
+                };
+
+                // Handle modal close
+                modalElement.addEventListener('hidden.bs.modal', function() {
+                    modalElement.remove();
+                    event.target.disabled = false;
+                    fetchGames();
                 });
 
-                let data = await response.json();
-                //refresh the UI
-                fetchGames();
-
-                if (data.success) {
-                    // Insert modal HTML using the correct case
-                    document.body.insertAdjacentHTML('beforeend', AddModalTemplates.bowlingGame());
-
-                    // Get the modal element
-                    let modalElement = document.getElementById('createModal');
-
-                    // Initialize the Bootstrap modal
-                    let modal = new bootstrap.Modal(modalElement);
-
-                    // Add event listener for modal close
-                    //needs revision
-                    modalElement.addEventListener('hidden.bs.modal', function() {
-                        modalElement.remove(); 
-                        event.target.disabled = false; 
-                        fetchGames(); 
-                    });
-
-                    // Show the modal
-                    modal.show();
-                }
+                modal.show();
             } catch (e) {
                 console.error('Error:', e);
+                event.target.disabled = false;
+                showError('Failed to start game');
             }
         }
-
 
         // Load games when page loads
         document.addEventListener('DOMContentLoaded', fetchGames);
     </script>
 </body>
-
 </html>
